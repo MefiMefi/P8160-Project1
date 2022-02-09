@@ -1,0 +1,41 @@
+---
+title: "model_evaluation"
+author: "Renjie Wei"
+date: "2/8/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Using `pbc` data  as an example of survival analysis.
+```{r}
+library(survival)
+library(tidyverse)
+data(pbc, package = "survival")
+df <- pbc %>% 
+  select(c("time","status","trt","age","sex","ascites","hepato","spiders")) %>% 
+  drop_na(any_of("trt")) %>% 
+  mutate(
+    status = if_else(status == 0,0,1),
+    trt = if_else(trt == 1,1,0),
+    sex = if_else(sex == "f",1,0)
+  )
+
+# Exponential
+fit.exponential <- survreg(Surv(time = time, event = status) ~ trt + sex + ascites+ hepato + spiders, dist = "exponential",data = df)
+summary(fit.exponential)
+#fit.exponential$coefficients[-1]
+
+# Weibull
+fit.weibull <- survreg(Surv(time = time, event = status) ~ trt + sex + ascites+ hepato + spiders, dist = "weibull",data = df)
+summary(fit.weibull)
+
+#fit.weibull$coefficients[-1] / fit.weibull$scale
+
+# Cox
+fit.cox <- coxph(Surv(time = time, event = status) ~ trt + sex + ascites+ hepato + spiders,data = df)
+summary(fit.cox)
+```
+
