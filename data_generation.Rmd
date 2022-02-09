@@ -1,0 +1,18 @@
+---
+title: "data_generation"
+author: "Haolin Zhong"
+date: "2022/2/8"
+output: html_document
+---
+
+## Culmulative Distribution of Time t
+
+- $S(t) = \displaystyle \int_t^{\infty} f(t)dt = 1 - F(t)$
+
+- $h(t) = \frac{f(t)}{S(t)} = \frac{F'(t)}{1 - F(t)}$
+
+- $F(t) = \displaystyle 1 - \text{exp}\left(-\int_0^t h(s)ds\right) = 1 - \text{exp} \left[ -(\int_0^t h_0(s)ds)  \cdot  \text{exp}(\beta^T X) \right]$
+
+  - exponential proportional-hazards model: $F(t) = 1 - \text{exp}\left[- \lambda t \cdot \exp(\beta^T X) \right] \quad \implies \quad F^{-1}(x) = - \frac{\ln(1 - x)}{\lambda \exp(\beta^TX)}$
+  
+  - Weibull proportional-hazards model: $F(t) = 1 - \text{exp}\left[- \lambda t^{\gamma} \cdot \exp(\beta^T X) \right] \quad \implies \quad F^{-1}(x) = \left( - \frac{\ln(1 - x)}{\lambda \exp(\beta^TX)}\right) ^{\frac 1 {\gamma}}$
