@@ -37,5 +37,50 @@ summary(fit.weibull)
 # Cox
 fit.cox <- coxph(Surv(time = time, event = status) ~ trt + sex + ascites+ hepato + spiders,data = df)
 summary(fit.cox)
+
+cox_s = basehaz(fit.cox)
+
+plot(x = cox_s$time,y = cox_s$hazard)
+
+```
+
+
+```{r}
+simulWeib <- function(N, lambda, rho, beta, rateC)
+{
+  # covariate --> N Bernoulli trials
+  x <- sample(x=c(0, 1), size=N, replace=TRUE, prob=c(0.5, 0.5))
+  
+  # Weibull latent event times
+  # v <- runif(n=N)
+  # Tlat <- (- log(v) / (lambda * exp(x * beta)))^(1 / rho)
+  
+  # An alternative draw for event times
+  lambda_wiki = lambda^(-1 / rho) #change definition of lambda to Wikipedia's
+  lambda_prime = lambda_wiki / exp(x * beta / rho) #re-scale according to beta
+  Tlat = rweibull(length(x), shape=rho, scale=lambda_prime)
+
+  # censoring times
+  C <- rexp(n=N, rate=rateC)
+  
+  # follow-up times and event indicators
+  time <- pmin(Tlat, C)
+  status <- as.numeric(Tlat <= C)
+  
+  # data set
+  data.frame(id=1:N,
+             time=time,
+             status=status,
+             x=x)
+}
+set.seed(1234)
+betaHat <- rep(NA, 1e3)
+for(k in 1:1e3)
+{
+  dat <- simulWeib(N=100, lambda=0.01, rho=1, beta=-0.6, rateC=0.001)
+  fit <- coxph(Surv(time, status) ~ x, data=dat)
+  betaHat[k] <- fit$coef
+}
+mean(betaHat)
 ```
 
