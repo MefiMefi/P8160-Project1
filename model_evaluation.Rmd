@@ -46,34 +46,38 @@ plot(x = cox_s$time,y = cox_s$hazard)
 
 
 ```{r}
+# N = sample size    
+# lambda = scale parameter in h0()
+# rho = shape parameter in h0()
+# beta = fixed effect parameter
+# rateC = rate parameter of the exponential distribution of C
+
 simulWeib <- function(N, lambda, rho, beta, rateC)
 {
   # covariate --> N Bernoulli trials
   x <- sample(x=c(0, 1), size=N, replace=TRUE, prob=c(0.5, 0.5))
-  
+
   # Weibull latent event times
-  # v <- runif(n=N)
-  # Tlat <- (- log(v) / (lambda * exp(x * beta)))^(1 / rho)
-  
-  # An alternative draw for event times
-  lambda_wiki = lambda^(-1 / rho) #change definition of lambda to Wikipedia's
-  lambda_prime = lambda_wiki / exp(x * beta / rho) #re-scale according to beta
-  Tlat = rweibull(length(x), shape=rho, scale=lambda_prime)
+  v <- runif(n=N)
+  Tlat <- (- log(v) / (lambda * exp(x * beta)))^(1 / rho)
 
   # censoring times
   C <- rexp(n=N, rate=rateC)
-  
+
   # follow-up times and event indicators
   time <- pmin(Tlat, C)
   status <- as.numeric(Tlat <= C)
-  
+
   # data set
   data.frame(id=1:N,
              time=time,
              status=status,
              x=x)
 }
-set.seed(1234)
+
+
+# simulation
+set.seed(2022)
 betaHat <- rep(NA, 1e3)
 for(k in 1:1e3)
 {
@@ -81,6 +85,38 @@ for(k in 1:1e3)
   fit <- coxph(Surv(time, status) ~ x, data=dat)
   betaHat[k] <- fit$coef
 }
+
 mean(betaHat)
+```
+
+```{r coef_mean_sd}
+
+x <- (1:30)/2 - 3 # create the covariates, 30 of them
+myrates <- exp(3*x+1) # the risk exp(beta*x), parameters for exp r.v.
+y <- rexp(30, rate = myrates) # generates the r.v.
+survreg(Surv(y,rep(1,30))~x,dist="weibull")$coef[2]
+#slope estimate by weibull regression
+#we do not have any censoring in the data
+coxph(Surv(y,rep(1,30))~x)$coef # estimate from Cox regression
+
+Simu2reg <- function(x , inputrates){
+y <- rexp(length(inputrates), rate=inputrates)
+temp1 <- survreg(Surv(y, rep(1, length(y)))~x,dist="weibull")
+temp2 <- coxph(Surv(y, rep(1, length(y)))~x)
+return(c(temp1$coef[2], temp2$coef))
+}
+
+result <- matrix(NA, nrow=5000, ncol=2) #create a matrix to hold outcome
+for(i in 1:1e3){
+  result[i,]<-Simu2reg(x,myrates) #run the simulation 1000 times
+} 
+
+mean(result[,1],na.rm = T)
+mean(result[,2],na.rm = T)
+sd(result[,1],na.rm = T)
+sd(result[,2],na.rm = T)
+hist(result[,1], xlim=c(0,6))
+hist(result[,2], xlim=c(0,6))
+
 ```
 
