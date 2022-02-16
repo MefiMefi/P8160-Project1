@@ -14,16 +14,33 @@ library(survival)
 
 ## Culmulative Distribution of Time t
 
-- $S(t) = \displaystyle \int_t^{\infty} f(t)dt = 1 - F(t)$
+$$S(t) = \displaystyle \int_t^{\infty} f(t)dt = 1 - F(t)$$
 
-- $h(t) = \frac{f(t)}{S(t)} = \frac{F'(t)}{1 - F(t)}$
+$$h(t) = \frac{f(t)}{S(t)} = \frac{F'(t)}{1 - F(t)}$$
 
-- $F(t) = \displaystyle 1 - \text{exp}\left(-\int_0^t h(s)ds\right) = 1 - \text{exp} \left[ -(\int_0^t h_0(s)ds)  \cdot  \text{exp}(\beta^T X) \right]$
+$$F(t) = \displaystyle 1 - \text{exp}\left(-\int_0^t h(s)ds\right) = 1 - \text{exp} \left[ -(\int_0^t h_0(s)ds)  \cdot  \text{exp}(\beta^T X) \right]$$
 
-  - exponential proportional-hazards model: $F(t) = 1 - \text{exp}\left[- \lambda t \cdot \exp(\beta^T X) \right] \quad \implies \quad F^{-1}(x) = - \frac{\ln(1 - x)}{\lambda \exp(\beta^TX)}$
+  - exponential proportional-hazards model: 
+
+$$F(t) = 1 - \text{exp}\left[- \lambda t \cdot \exp(\beta^T X) \right] \quad \implies \quad F^{-1}(U) = - \frac{\ln(U)}{\lambda \exp(\beta^TX)}$$
   
-  - Weibull proportional-hazards model: $F(t) = 1 - \text{exp}\left[- \lambda t^{\gamma} \cdot \exp(\beta^T X) \right] \quad \implies \quad F^{-1}(x) = \left( - \frac{\ln(1 - x)}{\lambda \exp(\beta^TX)}\right) ^{\frac 1 {\gamma}}$
+  - Weibull proportional-hazards model: 
+
+$$F(t) = 1 - \text{exp}\left[- \lambda t^{\gamma} \cdot \exp(\beta^T X) \right] \quad \implies \quad F^{-1}(U) = \left( - \frac{\ln(U)}{\lambda \exp(\beta^TX)}\right) ^{\frac 1 {\gamma}}$$
   
+  - Geompartz proportional-hazards model:
+  
+$$
+F(t) = 1 - \text{exp}\left[- \lambda t^{\gamma} \cdot \exp(\beta^T X) \right] \quad \implies \quad F^{-1}(U) = \frac 1 {\alpha} \ln{\left(1 - \frac{\alpha\ln U}{\lambda \exp{\beta^T X}}\right)}
+$$
+  
+```{r}
+cox = function(u, x, lambda, alpha, beta){
+    time = (1/alpha) * log(1 - (alpha * log(u) / (lambda * exp(beta * x))))
+  }
+```
+
+
 
 ## Data Generation
 
@@ -154,10 +171,19 @@ mse = sim_dat %>%
 ggplot(mse, aes(x = n, y = mse, color = fit_method)) +
   geom_point() +
   geom_line() +
+  scale_y_log10() +
   facet_grid("p")
 ```
 
 
+```{r}
+sim_dat %>% 
+  select(-data, -rep) %>% 
+  pivot_longer("b_exp":"b_cox", names_to = "fit_method", values_to = "beta") %>% 
+  ggplot(aes(x = interaction(n), y = beta, color = fit_method)) +
+  geom_boxplot() +
+  facet_grid(fit_method~ p)
+```
 
 
 
