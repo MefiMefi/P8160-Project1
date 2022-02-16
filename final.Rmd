@@ -13,7 +13,7 @@ library(survival)
 ```
 
 
-```{r shape-of-haz}
+```{r shape_of_haz}
 exp_haz <- function(t, lambda = 0.5) lambda * 1 * t^0
 weibull_haz <- function(t, lambda = 0.5, gamma = 1.5) lambda * gamma * t^(gamma - 1)
 gompertz_haz <- function(t, alpha = 0.3, lambda = 0.8) lambda * exp(alpha* t)
@@ -22,7 +22,8 @@ curve(weibull_haz, from = 0, to = 5, lty = 2, add = TRUE)
 curve(gompertz_haz, from = 0, to = 5, lty = 3, add = TRUE )
 legend(x = "topleft", lty = 1:3, legend = c("Exponential baseline hazard", "Weibull baseline hazard","Gompertz baseline harzard"), bty = "n")
 ```
-```{r shape-of-surv}
+
+```{r shape_of_surv}
 exp_surv <- function(t, lambda = 0.5) exp((-lambda)*t)
 weibull_surv <- function(t, lambda = 0.2, gamma = 5) exp((-lambda)*t^gamma)
 gompertz_surv <- function(t, alpha = 1.5, lambda = 0.8) exp(lambda/alpha*(1-exp(alpha*t)))
@@ -169,7 +170,7 @@ fit_cox = function(df) {
 - visualization:
 
 ```{r, fig.width=10}
-param_grid = expand.grid(p = seq(0, 1, by = 0.2), n = c(20, 40, 60, 80, 100, 200, 400), rep = 1:100)
+param_grid = expand.grid(p = seq(0, 1, by = 0.2), n = c(20, 40, 60, 80, 100, 200, 400), rep = 1:500)
 
 sim_dat = param_grid %>% 
   mutate(
@@ -219,11 +220,11 @@ var = sim_dat %>%
   select(-data, -rep) %>% 
   group_by(n, p) %>% 
   summarize(
-    exp_bias = var(b_exp),
-    weibull_bias = var(b_weibull),
-    cox_bias = var(b_cox)
+    exp_var = var(b_exp),
+    weibull_var = var(b_weibull),
+    cox_var = var(b_cox)
   ) %>% 
-  pivot_longer("exp_bias":"cox_bias", names_to = "fit_method", values_to = "bias") %>% 
+  pivot_longer("exp_var":"cox_var", names_to = "fit_method", values_to = "var") %>% 
   mutate(fit_method = as.factor(fit_method))
 
 
@@ -248,7 +249,112 @@ ggplot(mse, aes(x = n, y = mse, color = fit_method)) +
   geom_point() +
   geom_line() +
   scale_y_log10() +
+  scale_x_log10() +
   facet_grid("p")
+
+ggplot(var, aes(x = n, y = var, color = fit_method)) +
+  geom_point() +
+  geom_line() +
+  scale_y_log10() +
+  facet_grid("p")
+
+ggplot(bias, aes(x = n, y = bias, color = fit_method)) +
+  geom_point() +
+  geom_line() +
+  scale_y_log10() +
+  facet_grid("p")
+```
+
+```{r}
+param_grid2 = expand.grid(p = seq(0, 0.5, by = 0.1), n = c(20, 40, 60, 80, 100, 200, 400), rep = 1:500)
+sim_dat2 = param_grid2 %>% 
+  mutate(
+    data = map2(n, p, ~simdat2(n = .x, p = .y, eff = list(b1 = 0.5)))
+  ) %>% 
+  mutate(
+    b_exp = map_dbl(data, fit_exp),
+    b_weibull = map_dbl(data, fit_weibull),
+    b_cox = map_dbl(data, fit_cox)
+  )
+
+sim_dat2 %>% 
+  ggplot() +
+  geom_density(aes(x = b_exp, color = "darkred"), alpha = 0.6) +
+  geom_density(aes(x = b_weibull, color = "orange" ), size = 1.2) +
+  geom_density(aes(x = b_cox, color = "blue"), alpha = 0.3) +
+  geom_vline(xintercept = 0.5) +
+  facet_grid(n~p) +
+  xlab("estimated beta") +
+  scale_colour_manual(name = 'fit methods', 
+        values =c('blue'='blue','darkred'='darkred', 'orange' = 'orange'), labels = c('cox','exp', 'weibull'))
+```
+
+
+```{r}
+bias2 = sim_dat2 %>% 
+  select(-data, -rep) %>% 
+  mutate(
+    b_exp = abs(b_exp - 0.5), 
+    b_weibull = abs(b_weibull - 0.5),
+    b_cox = abs(b_cox - 0.5)
+  )%>% 
+  group_by(n, p) %>% 
+  summarize(
+    exp_bias = mean(b_exp),
+    weibull_bias = mean(b_weibull),
+    cox_bias = mean(b_cox)
+  ) %>% 
+  pivot_longer("exp_bias":"cox_bias", names_to = "fit_method", values_to = "bias") %>% 
+  mutate(fit_method = as.factor(fit_method))
+
+var2 = sim_dat2 %>% 
+  select(-data, -rep) %>% 
+  group_by(n, p) %>% 
+  summarize(
+    exp_var = var(b_exp),
+    weibull_var = var(b_weibull),
+    cox_var = var(b_cox)
+  ) %>% 
+  pivot_longer("exp_var":"cox_var", names_to = "fit_method", values_to = "var") %>% 
+  mutate(fit_method = as.factor(fit_method))
+
+
+mse2 = sim_dat2 %>% 
+  select(-data, -rep) %>%
+  mutate(
+    b_exp = (b_exp - 0.5)^2,
+    b_weibull = (b_weibull - 0.5)^2,
+    b_cox = (b_cox - 0.5)^2
+  ) %>% 
+  group_by(n, p) %>% 
+  summarize(
+    exp_mse = mean(b_exp),
+    weibull_mse = mean(b_weibull),
+    cox_mse = mean(b_cox)
+  ) %>% 
+  pivot_longer("exp_mse":"cox_mse", names_to = "fit_method", values_to = "mse") %>% 
+  mutate(fit_method = as.factor(fit_method)) 
+  
+  
+ggplot(mse2, aes(x = n, y = mse, color = fit_method)) +
+  geom_point() +
+  geom_line() +
+  scale_y_log10() +
+  scale_x_log10() +
+  facet_grid("p")
+
+ggplot(var2, aes(x = n, y = var, color = fit_method)) +
+  geom_point() +
+  geom_line() +
+  scale_y_log10() +
+  facet_grid("p")
+
+ggplot(bias2, aes(x = n, y = bias, color = fit_method)) +
+  geom_point() +
+  geom_line() +
+  scale_y_log10() +
+  facet_grid("p")
+
 ```
 
 
