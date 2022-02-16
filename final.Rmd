@@ -13,6 +13,17 @@ library(survival)
 ```
 
 
+```{r shape-of-haz}
+exp_haz <- function(t, lambda = 0.5) lambda * 1 * t^0
+weibull_haz <- function(t, lambda = 0.5, gamma = 1.5) lambda * gamma * t^(gamma - 1)
+gompertz_haz <- function(t, alpha = 0.01, lambda = 1.5) lambda * exp(alpha* t)
+curve(exp_haz, from = 0, to = 5, lty = 1, ylim = c(0, 2), ylab = expression(h[0](t)), xlab = "Follow-up time t")
+curve(weibull_haz, from = 0, to = 5, lty = 2, add = TRUE)
+curve(gompertz_haz, from = 0, to = 5, lty = 3, add = TRUE )
+legend(x = "topleft", lty = 1:2, legend = c("Exponential baseline hazard", "Weibull baseline hazard"), bty = "n")
+```
+
+
 ## Culmulative Distribution of Time t
 
 $$S(t) = \displaystyle \int_t^{\infty} f(t)dt = 1 - F(t)$$
