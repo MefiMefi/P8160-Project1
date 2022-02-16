@@ -121,3 +121,12 @@ hist(result[,2], xlim=c(0,6))
 
 ```
 
+```{r efficency}
+n_optimize <- function(tol = 0.05, var, p = 0.05){
+  chebyshev_n = ceiling(var/(tol*tol*p))
+  clt_n = ceiling((sqrt(var)*qnorm(1-0.5*p)/tol)^2)
+  return(c(chebyshev_n,clt_n))
+}
+n_optimize(var = 0.0660)
+```
+
