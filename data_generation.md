@@ -46,17 +46,19 @@ library(survival)
 
 ## Culmulative Distribution of Time t
 
--   *S*(*t*) = ∫<sub>*t*</sub><sup>∞</sup>*f*(*t*)*d**t* = 1 − *F*(*t*)
+*S*(*t*) = ∫<sub>*t*</sub><sup>∞</sup>*f*(*t*)*d**t* = 1 − *F*(*t*)
 
--   $h(t) = \\frac{f(t)}{S(t)} = \\frac{F'(t)}{1 - F(t)}$
+$$h(t) = \\frac{f(t)}{S(t)} = \\frac{F'(t)}{1 - F(t)}$$
 
--   *F*(*t*) = 1 − exp(−∫<sub>0</sub><sup>*t*</sup>*h*(*s*)*d**s*) = 1 − exp\[−(∫<sub>0</sub><sup>*t*</sup>*h*<sub>0</sub>(*s*)*d**s*)⋅exp(*β*<sup>*T*</sup>*X*)\]
+*F*(*t*) = 1 − exp(−∫<sub>0</sub><sup>*t*</sup>*h*(*s*)*d**s*) = 1 − exp\[−(∫<sub>0</sub><sup>*t*</sup>*h*<sub>0</sub>(*s*)*d**s*)⋅exp(*β*<sup>*T*</sup>*X*)\]
 
-    -   exponential proportional-hazards model:
-        $F(t) = 1 - \\text{exp}\\left\[- \\lambda t \\cdot \\exp(\\beta^T X) \\right\] \\quad \\implies \\quad F^{-1}(x) = - \\frac{\\ln(1 - x)}{\\lambda \\exp(\\beta^TX)}$
+-   exponential proportional-hazards model:
 
-    -   Weibull proportional-hazards model:
-        $F(t) = 1 - \\text{exp}\\left\[- \\lambda t^{\\gamma} \\cdot \\exp(\\beta^T X) \\right\] \\quad \\implies \\quad F^{-1}(x) = \\left( - \\frac{\\ln(1 - x)}{\\lambda \\exp(\\beta^TX)}\\right) ^{\\frac 1 {\\gamma}}$
+$$F(t) = 1 - \\text{exp}\\left\[- \\lambda t \\cdot \\exp(\\beta^T X) \\right\] \\quad \\implies \\quad F^{-1}(x) = - \\frac{\\ln(1 - x)}{\\lambda \\exp(\\beta^TX)}$$
+
+-   Weibull proportional-hazards model:
+
+$$F(t) = 1 - \\text{exp}\\left\[- \\lambda t^{\\gamma} \\cdot \\exp(\\beta^T X) \\right\] \\quad \\implies \\quad F^{-1}(x) = \\left( - \\frac{\\ln(1 - x)}{\\lambda \\exp(\\beta^TX)}\\right) ^{\\frac 1 {\\gamma}}$$
 
 ## Data Generation
 
