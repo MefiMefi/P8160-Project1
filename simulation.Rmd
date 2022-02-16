@@ -1,16 +1,22 @@
+---
+title: "simu_functions"
+author: "Anyu Zhu"
+date: "2/15/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
 library(survival)
 library(tidyverse)
+```
 
-exp_base <- function(t, lambda = 0.5) lambda * 1 * t^0
-weibull_base <- function(t, lambda = 0.5, gamma = 1.5) lambda * gamma * t^(gamma - 1)
-# cox no base
-
-#curve(exp_base, from = 0, to = 5, lty = 1, ylim = c(0, 2), ylab = expression(h[0](t)), xlab = "Follow-up time t")
-#curve(weibull_base, from = 0, to = 5, lty = 2, add = TRUE)
-#legend(x = "topleft", lty = 1:2, legend = c("Exponential baseline hazard", "Weibull baseline hazard"), bty = "n")
-
-
-#simulate data
+a function to simulate censored data.
+Cox model use the Gompertz distribution as baseline
+```{r}
 survival_data <- function(n, beta, lambda, gamma, alpha, distribution) {
   exponential = function(u, x, lambda, beta){
     time = -log(u)/(exp(x*beta)*lambda)
@@ -20,7 +26,10 @@ survival_data <- function(n, beta, lambda, gamma, alpha, distribution) {
     time = ( -log(u) / (exp(x * beta) * lambda) ) ^ (1 / gamma)
   }
   
-  #cox
+  #cox?
+  cox = function(u, x, lambda, alpha, beta){
+    time = (1/alpha) * log(1 - (alpha * log(u) / (lambda * exp(beta * x))))
+  }
   
   #treatment & times
   x = rbinom(n = n, size = 1, prob = 0.5)
@@ -30,6 +39,9 @@ survival_data <- function(n, beta, lambda, gamma, alpha, distribution) {
     time = exponential(u, x, lambda, beta) } 
   else if (distribution == "weibull") {
     time = weibull(u, x, lambda, gamma, beta) }
+  else {
+    time = cox(u, x, lambda, alpha, beta)
+  }
   
   #censor
   C = rexp(n, lambda)
@@ -44,7 +56,10 @@ survival_data <- function(n, beta, lambda, gamma, alpha, distribution) {
                              status = status,
                              x = x)
 }
+```
 
+The function to fit the model
+```{r}
 simulate = function(sim, n, beta, dist = "exponential") {
 
   exp_beta = rep(NA, sim)
@@ -65,17 +80,30 @@ simulate = function(sim, n, beta, dist = "exponential") {
       cox_beta[i] = fit_cox$coefficients[1]
       }
   
+  # fit coefficients
   coef = tibble(exp = exp_beta,
                 weibull = weibull_beta,
                 cox = cox_beta)
   
-  results = list(coef)
-  names(results) = c("coefficients")
+  exp_bias = sum(exp_beta - beta)/sim
+  weibull_bias = sum(weibull_beta - beta)/sim
+  cox_bias = sum(cox_beta - beta)/sim
+  
+  performance = tibble(model = c("exp", "weibull", "cox"),
+                       bias = c(exp_bias, weibull_bias, cox_bias))
+  results = list(coef, performance)
+  names(results) = c("coefficients", "performance")
   return(results)
 }
+```
 
-tibble(sample_size = c(300, 350, 400, 450, 500)) %>% 
+Display results:
+
+when we have different sample size:
+```{r}
+rst = tibble(sample_size = c(300, 350, 400, 450, 500)) %>% 
   mutate(
     output = map(.x = sample_size, 
-                          ~simulate(sim = 1000, n = .x, beta = 4))) 
+                          ~simulate(sim = 1000, n = .x, beta = 4)$performance)) 
+```
 
