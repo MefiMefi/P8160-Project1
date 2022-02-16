@@ -15,8 +15,8 @@ library(survival)
 
 ```{r shape_of_haz}
 exp_haz <- function(t, lambda = 0.5) lambda * 1 * t^0
-weibull_haz <- function(t, lambda = 0.5, gamma = 1.5) lambda * gamma * t^(gamma - 1)
-gompertz_haz <- function(t, alpha = 0.3, lambda = 0.8) lambda * exp(alpha* t)
+weibull_haz <- function(t, lambda = 0.5, gamma = 0.5) lambda * gamma * t^(gamma - 1)
+gompertz_haz <- function(t, alpha = 0.5, lambda = 0.1) lambda * exp(alpha* t)
 curve(exp_haz, from = 0, to = 5, lty = 1, ylim = c(0, 2), ylab = expression(h[0](t)), xlab = "Follow-up time t")
 curve(weibull_haz, from = 0, to = 5, lty = 2, add = TRUE)
 curve(gompertz_haz, from = 0, to = 5, lty = 3, add = TRUE )
@@ -26,7 +26,7 @@ legend(x = "topleft", lty = 1:3, legend = c("Exponential baseline hazard", "Weib
 ```{r shape_of_surv}
 exp_surv <- function(t, lambda = 0.5) exp((-lambda)*t)
 weibull_surv <- function(t, lambda = 0.2, gamma = 5) exp((-lambda)*t^gamma)
-gompertz_surv <- function(t, alpha = 1.5, lambda = 0.8) exp(lambda/alpha*(1-exp(alpha*t)))
+gompertz_surv <- function(t, alpha = 0.08, lambda = 1) exp(lambda/alpha*(1-exp(alpha*t)))
 curve(exp_surv, from = 0, to = 5, lty = 1, ylim = c(0, 2), ylab = expression(S[0](t)), xlab = "Follow-up time t")
 curve(weibull_surv, from = 0, to = 5, lty = 2, add = TRUE)
 curve(gompertz_surv, from = 0, to = 5, lty = 3, add = TRUE )
@@ -105,7 +105,7 @@ simdat = function(n, p, lambda = 0.5, gamma = 1.5, eff = list()) {
 }
 ```
 ```{r}
-simdat2 = function(n, p, lambda = 0.5, gamma = 1.5, eff = list()) {
+simdat2 = function(n, p, lambda = 0.1, alpha = 0.5, eff = list()) {
   # randomly assign group
   x1 = rbinom(n, 1, 0.5)
   
@@ -266,6 +266,7 @@ ggplot(bias, aes(x = n, y = bias, color = fit_method)) +
 ```
 
 ```{r}
+#simdat2(100,0,eff = list(b1 = 0.5))
 param_grid2 = expand.grid(p = seq(0, 0.5, by = 0.1), n = c(20, 40, 60, 80, 100, 200, 400), rep = 1:500)
 sim_dat2 = param_grid2 %>% 
   mutate(
@@ -277,16 +278,16 @@ sim_dat2 = param_grid2 %>%
     b_cox = map_dbl(data, fit_cox)
   )
 
-sim_dat2 %>% 
-  ggplot() +
-  geom_density(aes(x = b_exp, color = "darkred"), alpha = 0.6) +
-  geom_density(aes(x = b_weibull, color = "orange" ), size = 1.2) +
-  geom_density(aes(x = b_cox, color = "blue"), alpha = 0.3) +
-  geom_vline(xintercept = 0.5) +
-  facet_grid(n~p) +
-  xlab("estimated beta") +
-  scale_colour_manual(name = 'fit methods', 
-        values =c('blue'='blue','darkred'='darkred', 'orange' = 'orange'), labels = c('cox','exp', 'weibull'))
+#sim_dat2 %>% 
+#  ggplot() +
+#  geom_density(aes(x = b_exp, color = "darkred"), alpha = 0.6) +
+#  geom_density(aes(x = b_weibull, color = "orange" ), size = 1.2) +
+#  geom_density(aes(x = b_cox, color = "blue"), alpha = 0.3) +
+#  geom_vline(xintercept = 0.5) +
+#  facet_grid(n~p) +
+#  xlab("estimated beta") +
+#  scale_colour_manual(name = 'fit methods', 
+#        values =c('blue'='blue','darkred'='darkred', 'orange' = 'orange'), labels = c('cox','exp', 'weibull'))
 ```
 
 
@@ -347,12 +348,14 @@ ggplot(var2, aes(x = n, y = var, color = fit_method)) +
   geom_point() +
   geom_line() +
   scale_y_log10() +
+  scale_x_log10() +
   facet_grid("p")
 
 ggplot(bias2, aes(x = n, y = bias, color = fit_method)) +
   geom_point() +
   geom_line() +
   scale_y_log10() +
+  scale_x_log10() +
   facet_grid("p")
 
 ```
