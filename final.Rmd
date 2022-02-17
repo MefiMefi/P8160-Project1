@@ -77,7 +77,7 @@ cox = function(u, x, lambda, alpha, beta){
   - In later analysis we will always use `b1 = 0.5` as the treatment effect.
   
 ```{r}
-simdat = function(n, p, lambda = 0.5, gamma = 1.5, eff = list()) {
+simdat = function(n, p, lambda = 0.1, gamma = 1.5, eff = list()) {
   # randomly assign group
   x1 = rbinom(n, 1, 0.5)
   
@@ -104,6 +104,7 @@ simdat = function(n, p, lambda = 0.5, gamma = 1.5, eff = list()) {
   # return(tibble(name = name, time = t, event = e, x1 = x1, x2 = x2))
 }
 ```
+
 ```{r}
 simdat2 = function(n, p, lambda = 0.1, alpha = 0.5, eff = list()) {
   # randomly assign group

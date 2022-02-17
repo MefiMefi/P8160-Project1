@@ -173,29 +173,35 @@ pre code {
 
 <div id="design-of-simulation-settings" class="section level2">
 <h2>Design of simulation settings</h2>
-<p>All simulation scenarios are displayed in the table below:</p>
+<p>We conducted simulation studies to assess the performance of three survival models. In total, we created 12 simulation settings by mixing the event time generated from the three specified baseline hazard function: exponential, Weibull, and Gompertz hazard function. Then the generated data were fitted to exponential, Weibull, and Cox proportional hazard models. The parameters we applied in the models are constants: <span class="math inline">\(\alpha = 0.5\)</span>, <span class="math inline">\(\lambda = 0.1\)</span>, <span class="math inline">\(\gamma = 1.5\)</span>, <span class="math inline">\(\beta = 0.5\)</span>.</p>
+<p>First, we simulated 500 data sets with sample size 500 in each simulation setting. After running the models, a set of was extracted and used to calculate the mean bias, variance, and squared error.</p>
+<p>Then, we evaluated the performances of models on varying sample size to evaluate the efficiency. Therefore, we simulated data of different sample sizes: 20, 40, 60, 80, 100, 200, 400. Similarly, bias, variance, MSE are calculated.</p>
+<p>All the simulation processes were performed in R.</p>
 </div>
 <div id="methods-for-generating-data" class="section level2">
 <h2>Methods for generating data</h2>
-<p>The survival dataset contains treatment assignment, status indicator, and observed time. Treatment assignment variable <span class="math inline">\(X_i\)</span> is generated from a bernoulli distribution with p = 0.5.By utilizing the inverse transformation method, we can obtain event time T:</p>
+<p>The survival dataset contains treatment assignment, status indicator, and observed time. Treatment assignment variable <span class="math inline">\(X_i\)</span> is generated from a bernoulli distribution with p = 0.5. By utilizing the inverse transformation method, we can obtain event time T:</p>
 <p><span class="math inline">\(T=H_{0}^{-1}\left(\frac{-\log (u)}{e^{x^{T} \beta}}\right)\)</span>, where <span class="math inline">\(U \sim U(0,1)\)</span></p>
 <p>The followings are specific baseline hazard functions we applied:<br />
-Under Exponential distribution: Baseline hazard function: <span class="math inline">\(h_{0}(t)=\lambda\)</span>, where <span class="math inline">\(\lambda&gt;0\)</span><br />
+</p>
+<ol style="list-style-type: decimal">
+<li><p>Under Exponential distribution: Baseline hazard function: <span class="math inline">\(h_{0}(t)=\lambda\)</span>, where <span class="math inline">\(\lambda&gt;0\)</span><br />
 Cumulative hazard function: <span class="math inline">\(H_{0}(t)=\lambda t\)</span><br />
 Inverse cumulative hazard function: <span class="math inline">\(H_{0}^{-1}(t)=\frac{t}{\lambda}\)</span><br />
-Survival time: <span class="math inline">\(T=-\frac{\log (u)}{\lambda e^{x^{T} \beta}}\)</span></p>
-<p>Under Weibull distribution: Baseline hazard function: <span class="math inline">\(h_{0}(t)=\lambda\)</span>, where <span class="math inline">\(\lambda&gt;0\)</span><br />
+Survival time: <span class="math inline">\(T=-\frac{\log (u)}{\lambda e^{x^{T} \beta}}\)</span></p></li>
+<li><p>Under Weibull distribution: Baseline hazard function: <span class="math inline">\(h_{0}(t)=\lambda\)</span>, where <span class="math inline">\(\lambda&gt;0\)</span><br />
 Cumulative hazard function: <span class="math inline">\(H_{0}(t)=\lambda t\)</span><br />
 Inverse cumulative hazard function: <span class="math inline">\(H_{0}^{-1}(t)=\frac{t}{\lambda}\)</span><br />
-Survival time: <span class="math inline">\(T=-\frac{\log (u)}{\lambda e^{x^{T} \beta}}\)</span></p>
-<p>Under Gompertz distribution: Baseline hazard function: <span class="math inline">\(h_{0}(t)=e^{\alpha t}\)</span>, where <span class="math inline">\(\lambda&gt;0,-\infty&lt;\alpha&lt;\infty\)</span><br />
+Survival time: <span class="math inline">\(T=-\frac{\log (u)}{\lambda e^{x^{T} \beta}}\)</span></p></li>
+<li><p>Under Gompertz distribution: Baseline hazard function: <span class="math inline">\(h_{0}(t)=e^{\alpha t}\)</span>, where <span class="math inline">\(\lambda&gt;0,-\infty&lt;\alpha&lt;\infty\)</span><br />
 Cumulative hazard function: <span class="math inline">\(H_{0}(t)=\frac{\lambda}{\alpha}\left(e^{\alpha t}-1\right)\)</span><br />
 Inverse cumulative hazard function: <span class="math inline">\(H_{0}^{-1}(t)=\frac{1}{\alpha} \log \left(\frac{\alpha}{\lambda} t+1\right)\)</span><br />
-Survival time: <span class="math inline">\(T=\frac{1}{\alpha} \log \left(1-\frac{\alpha \log (u)}{\lambda e^{x^{T} \beta}}\right)\)</span></p>
+Survival time: <span class="math inline">\(T=\frac{1}{\alpha} \log \left(1-\frac{\alpha \log (u)}{\lambda e^{x^{T} \beta}}\right)\)</span></p></li>
+</ol>
 <p>We simulated survival data by mixing the event time generated from the mixtures of three baseline distributions above.</p>
 <p>Mixture of Exponential and Weibull distribution: <span class="math display">\[T=p *(-\frac{\log (u)}{\lambda e^{x^{T} \beta}}) + (1-p)*(-\frac{\log (u)}{\lambda e^{x^{T} \beta}})\]</span> We take values of p from (0, 0.2, 0.4, 0.6, 0.8, 1). When <code>p = 1</code>, event time is generated from exponential baseline; when <code>p = 0</code>, event time is generated from Weibull distribution.</p>
 <p>Mixture of Exponential and Gompertz distribution: <span class="math display">\[T=p *(-\frac{\log (u)}{\lambda e^{x^{T} \beta}}) + (1-p)*(\frac{1}{\alpha} \log \left(1-\frac{\alpha \log (u)}{\lambda e^{x^{T} \beta}}\right))\]</span> Similary, we take values of p from (0, 0.2, 0.4, 0.6, 0.8, 1). When <code>p = 1</code>, event time is generated from exponential baseline; when <code>p = 0</code>, event time is generated from Gompertz distribution. Finally, make event indicator variable by applying administrative censoring at t = 5.</p>
-<p>By repeating each of the above simulation process 500 times, we get *** survival datasets with sample size ranging from ***.</p>
+<p>By repeating each of the above simulation process 500 times, we get *** survival datasets with sample size ranging from 20 to 400.</p>
 </div>
 
 

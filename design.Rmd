@@ -6,29 +6,34 @@ output: html_document
 ---
 
 ## Design of simulation settings
+We conducted simulation studies to assess the performance of three survival models. In total, we created 12 simulation settings by mixing the event time generated from the three specified baseline hazard function: exponential, Weibull, and Gompertz hazard function. Then the generated data were fitted to exponential, Weibull, and Cox proportional hazard models. The parameters we applied in the models are constants: $\alpha = 0.5$, $\lambda = 0.1$, $\gamma = 1.5$, $\beta = 0.5$.
 
-All simulation scenarios are displayed in the table below:
+First, we simulated 500 data sets with sample size 500 in each simulation setting. After running the models, a set of \beta was extracted and used to calculate the mean bias, variance, and squared error. 
 
+Then, we evaluated the performances of models on varying sample size to evaluate the efficiency. Therefore, we simulated data of different sample sizes: 20, 40, 60, 80, 100, 200, 400. Similarly, bias, variance, MSE are calculated. 
+
+All the simulation processes were performed in R.
 
 ## Methods for generating data
-The survival dataset contains treatment assignment, status indicator, and observed time. Treatment assignment variable $X_i$ is generated from a bernoulli distribution with p = 0.5.By utilizing the inverse transformation method, we can obtain event time T: 
+The survival dataset contains treatment assignment, status indicator, and observed time. Treatment assignment variable $X_i$ is generated from a bernoulli distribution with p = 0.5. By utilizing the inverse transformation method, we can obtain event time T: 
 
 $T=H_{0}^{-1}\left(\frac{-\log (u)}{e^{x^{T} \beta}}\right)$, where $U \sim U(0,1)$
 
 The followings are specific baseline hazard functions we applied:\
-Under Exponential distribution:
+
+1. Under Exponential distribution:
 Baseline hazard function: $h_{0}(t)=\lambda$, where $\lambda>0$\
 Cumulative hazard function: $H_{0}(t)=\lambda t$\
 Inverse cumulative hazard function: $H_{0}^{-1}(t)=\frac{t}{\lambda}$\
 Survival time: $T=-\frac{\log (u)}{\lambda e^{x^{T} \beta}}$
 
-Under Weibull distribution:
+2. Under Weibull distribution:
 Baseline hazard function: $h_{0}(t)=\lambda$, where $\lambda>0$\
 Cumulative hazard function: $H_{0}(t)=\lambda t$\
 Inverse cumulative hazard function: $H_{0}^{-1}(t)=\frac{t}{\lambda}$\
 Survival time: $T=-\frac{\log (u)}{\lambda e^{x^{T} \beta}}$
 
-Under Gompertz distribution:
+3. Under Gompertz distribution:
 Baseline hazard function: $h_{0}(t)=e^{\alpha t}$, where $\lambda>0,-\infty<\alpha<\infty$\
 Cumulative hazard function: $H_{0}(t)=\frac{\lambda}{\alpha}\left(e^{\alpha t}-1\right)$\
 Inverse cumulative hazard function: $H_{0}^{-1}(t)=\frac{1}{\alpha} \log \left(\frac{\alpha}{\lambda} t+1\right)$\
@@ -44,4 +49,4 @@ Mixture of Exponential and Gompertz distribution:
 $$T=p *(-\frac{\log (u)}{\lambda e^{x^{T} \beta}}) + (1-p)*(\frac{1}{\alpha} \log \left(1-\frac{\alpha \log (u)}{\lambda e^{x^{T} \beta}}\right))$$
 Similary, we take values of p from (0, 0.2, 0.4, 0.6, 0.8, 1). When `p = 1`, event time is generated from exponential baseline; when `p = 0`, event time is generated from Gompertz distribution. Finally, make event indicator variable by applying administrative censoring at t = 5.
 
-By repeating each of the above simulation process 500 times, we get *** survival datasets with sample size ranging from ***. 
+By repeating each of the above simulation process 500 times, we get *** survival datasets with sample size ranging from 20 to 400. 
