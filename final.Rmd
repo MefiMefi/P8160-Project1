@@ -1,8 +1,16 @@
 ---
-title: "final"
-author: "Renjie Wei"
-date: "2/16/2022"
-output: html_document
+title: "P8160 Project-1-1"
+author: 
+  - Yijing Tao
+  - Renjie Wei
+  - Jibei Zheng
+  - Haolin Zhong
+  - Anyu Zhu
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 2
 ---
 
 
@@ -10,8 +18,10 @@ output: html_document
 library(tidyverse)
 library(caret)
 library(survival)
+library(fastmap)
 ```
 
+## Draw curves of hazard functions and survival functions
 
 ```{r shape_of_haz}
 exp_haz <- function(t, lambda = 0.5) lambda * 1 * t^0
@@ -76,7 +86,7 @@ cox = function(u, x, lambda, alpha, beta){
   
   - In later analysis we will always use `b1 = 0.5` as the treatment effect.
   
-```{r}
+```{r simdat}
 simdat = function(n, p, lambda = 0.1, gamma = 1.5, eff = list()) {
   # randomly assign group
   x1 = rbinom(n, 1, 0.5)
@@ -105,7 +115,9 @@ simdat = function(n, p, lambda = 0.1, gamma = 1.5, eff = list()) {
 }
 ```
 
-```{r}
+- mixing exponential and gompertz
+
+```{r simdat2}
 simdat2 = function(n, p, lambda = 0.1, alpha = 0.5, eff = list()) {
   # randomly assign group
   x1 = rbinom(n, 1, 0.5)
@@ -200,7 +212,7 @@ sim_dat %>%
   
   - MSE may reflect accuracy: (the trend is indeed very obvious)
   
-```{r}
+```{r simulation1}
 bias = sim_dat %>% 
   select(-data, -rep) %>% 
   mutate(
@@ -266,7 +278,7 @@ ggplot(bias, aes(x = n, y = bias, color = fit_method)) +
   facet_grid("p")
 ```
 
-```{r}
+```{r simulation2}
 #simdat2(100,0,eff = list(b1 = 0.5))
 param_grid2 = expand.grid(p = seq(0, 0.5, by = 0.1), n = c(20, 40, 60, 80, 100, 200, 400), rep = 1:500)
 sim_dat2 = param_grid2 %>% 
@@ -279,20 +291,21 @@ sim_dat2 = param_grid2 %>%
     b_cox = map_dbl(data, fit_cox)
   )
 
-#sim_dat2 %>% 
-#  ggplot() +
-#  geom_density(aes(x = b_exp, color = "darkred"), alpha = 0.6) +
-#  geom_density(aes(x = b_weibull, color = "orange" ), size = 1.2) +
-#  geom_density(aes(x = b_cox, color = "blue"), alpha = 0.3) +
-#  geom_vline(xintercept = 0.5) +
-#  facet_grid(n~p) +
-#  xlab("estimated beta") +
-#  scale_colour_manual(name = 'fit methods', 
-#        values =c('blue'='blue','darkred'='darkred', 'orange' = 'orange'), labels = c('cox','exp', 'weibull'))
+sim_dat2 %>% 
+  ggplot() +
+  geom_density(aes(x = b_exp, color = "darkred"), alpha = 0.6) +
+  geom_density(aes(x = b_weibull, color = "orange" ), size = 1.2) +
+  geom_density(aes(x = b_cox, color = "blue"), alpha = 0.3) +
+  geom_vline(xintercept = 0.5) +
+  facet_grid(n~p) +
+  xlab("estimated beta") +
+  scale_colour_manual(name = 'fit methods', 
+        values =c('blue'='blue','darkred'='darkred', 'orange' = 'orange'), labels = c('cox','exp', 'weibull'))
 ```
 
+- analysis of robustness
 
-```{r}
+```{r robustness}
 bias2 = sim_dat2 %>% 
   select(-data, -rep) %>% 
   mutate(
