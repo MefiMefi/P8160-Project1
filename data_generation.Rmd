@@ -88,7 +88,7 @@ simdat = function(n, p, lambda = 0.5, gamma = 1.5, eff = list()) {
 - test:
 
 ```{r}
-data = simdat(500, 1, eff = list(b1 = 0.5))
+data = simdat(500, 0, eff = list(b1 = 0.5))
 
 data %>% 
   ggplot() +

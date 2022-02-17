@@ -1,0 +1,45 @@
+---
+title: "Selection of performance measure"
+author: "Yijing Tao"
+date: "2/17/2022"
+output: html_document
+---
+
+## Selection of performance measure
+
+We decided to use Average deviance, Variance and MSE to measure the performance of the 3 models we have got.
+
+Average deviance:\
+The average deviation is the average difference between the sign values and the arithmetic mean. The larger the average deviation, the greater the degree of difference between each sign value and the arithmetic mean, and the less representative the arithmetic mean is; the smaller the average deviation, the smaller the degree of difference between each sign value and the arithmetic mean, and the more representative the arithmetic mean is.\
+According to the definition, the model which have a smaller average deviance will have a better predicting accuracy.\
+In the data we generated, we assume $\beta_{1}=0.5$. So when calculating the average deviation, we used the equation below to get the average deviation of each model.\
+
+Exponential: $average deviation=\sum\frac{|fit.exp-\beta_{1}*1|}{n}=\sum\frac{|fit.exp-0.5|}{n}$\
+
+Weibull: $average deviation=\sum\frac{|fit.weibull-\beta_{1}*1|}{n}=\sum\frac{|fit.weibull-0.5|}{n}$\
+
+Cox: $average deviation=\sum\frac{|fit.cox-\beta_{1}*1|}{n}=\sum\frac{|fit.cox-0.5|}{n}$
+
+Variance:\
+The variance is the average of the sum of the squares of the differences between the individual data and the mean. According to the definition, the model which have a smaller variance will have a better predicting performance.
+In the data we generated, we assume $\beta_{1}=0.5$. So when calculating the variance, we used the equation below to get the variance of each model.\
+
+Exponential: $variance= \sum\frac{(fit.exp-\beta_{1}*1)^2}{n-1}=\sum\frac{(fit.exp-0.5)^2}{n-1}$\
+
+Weibull: $variance= \sum\frac{(fit.weibull-\beta_{1}*1)^2}{n-1}=\sum\frac{(fit.weibull-0.5)^2}{n-1}$\
+
+Cox: $variance= \sum\frac{(fit.cox-\beta_{1}*1)^2}{n-1}=\sum\frac{(fit.cox-0.5)^2}{n-1}$\
+
+MSE:
+The mean squared error (MSE) in parameter estimation is the expected value of the squared difference between the parameter estimate and the true value of the parameter.
+According to the definition, the model which have a smaller MSE will have a better predicting performance.
+In the data we generated, we assume $\beta_{1}=0.5$. So when calculating the MSE, we used the equation below to get the MSE of each model.\
+
+Exponential: $MSE= \sum\frac{(fit.exp-\beta_{1}*1)^2}{n}=\sum\frac{(fit.exp-0.5)^2}{n}$\
+
+Weibull: $MSE= \sum\frac{(fit.weibull-\beta_{1}*1)^2}{n}=\sum\frac{(fit.weibull-0.5)^2}{n}$\
+
+Cox: $MSE= \sum\frac{(fit.cox-\beta_{1}*1)^2}{n}=\sum\frac{(fit.cox-0.5)^2}{n}$
+
+After getting the average deviance, variance and MSE of the 3 models when the size and the component of the data we generated is different, we made the spaghetti plot where the y value is average deviance, variance or MSE and the x value is the size of the data.\
+By observing the spaghetti plot, we can consider the model which have lower y value will have better performance.
