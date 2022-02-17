@@ -1,0 +1,47 @@
+---
+title: "design"
+author: "Anyu Zhu"
+date: "2/16/2022"
+output: html_document
+---
+
+## Design of simulation settings
+
+All simulation scenarios are displayed in the table below:
+
+
+## Methods for generating data
+The survival dataset contains treatment assignment, status indicator, and observed time. Treatment assignment variable $X_i$ is generated from a bernoulli distribution with p = 0.5.By utilizing the inverse transformation method, we can obtain event time T: 
+
+$T=H_{0}^{-1}\left(\frac{-\log (u)}{e^{x^{T} \beta}}\right)$, where $U \sim U(0,1)$
+
+The followings are specific baseline hazard functions we applied:\
+Under Exponential distribution:
+Baseline hazard function: $h_{0}(t)=\lambda$, where $\lambda>0$\
+Cumulative hazard function: $H_{0}(t)=\lambda t$\
+Inverse cumulative hazard function: $H_{0}^{-1}(t)=\frac{t}{\lambda}$\
+Survival time: $T=-\frac{\log (u)}{\lambda e^{x^{T} \beta}}$
+
+Under Weibull distribution:
+Baseline hazard function: $h_{0}(t)=\lambda$, where $\lambda>0$\
+Cumulative hazard function: $H_{0}(t)=\lambda t$\
+Inverse cumulative hazard function: $H_{0}^{-1}(t)=\frac{t}{\lambda}$\
+Survival time: $T=-\frac{\log (u)}{\lambda e^{x^{T} \beta}}$
+
+Under Gompertz distribution:
+Baseline hazard function: $h_{0}(t)=e^{\alpha t}$, where $\lambda>0,-\infty<\alpha<\infty$\
+Cumulative hazard function: $H_{0}(t)=\frac{\lambda}{\alpha}\left(e^{\alpha t}-1\right)$\
+Inverse cumulative hazard function: $H_{0}^{-1}(t)=\frac{1}{\alpha} \log \left(\frac{\alpha}{\lambda} t+1\right)$\
+Survival time: $T=\frac{1}{\alpha} \log \left(1-\frac{\alpha \log (u)}{\lambda e^{x^{T} \beta}}\right)$
+
+We simulated survival data by mixing the event time generated from the mixtures of three baseline distributions above. 
+
+Mixture of Exponential and Weibull distribution:
+$$T=p *(-\frac{\log (u)}{\lambda e^{x^{T} \beta}}) + (1-p)*(-\frac{\log (u)}{\lambda e^{x^{T} \beta}})$$
+We take values of p from (0, 0.2, 0.4, 0.6, 0.8, 1). When `p = 1`, event time is generated from exponential baseline; when `p = 0`, event time is generated from Weibull distribution. 
+
+Mixture of Exponential and Gompertz distribution:
+$$T=p *(-\frac{\log (u)}{\lambda e^{x^{T} \beta}}) + (1-p)*(\frac{1}{\alpha} \log \left(1-\frac{\alpha \log (u)}{\lambda e^{x^{T} \beta}}\right))$$
+Similary, we take values of p from (0, 0.2, 0.4, 0.6, 0.8, 1). When `p = 1`, event time is generated from exponential baseline; when `p = 0`, event time is generated from Gompertz distribution. Finally, make event indicator variable by applying administrative censoring at t = 5.
+
+By repeating each of the above simulation process 500 times, we get *** survival datasets with sample size ranging from ***. 
