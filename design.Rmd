@@ -8,7 +8,7 @@ output: html_document
 ## Design of simulation settings
 We conducted simulation studies to assess the performance of three survival models. In total, we created 12 simulation settings by mixing the event time generated from the three specified baseline hazard function: exponential, Weibull, and Gompertz hazard function. Then the generated data were fitted to exponential, Weibull, and Cox proportional hazard models. The parameters we applied in the models are constants: $\alpha = 0.5$, $\lambda = 0.1$, $\gamma = 1.5$, $\beta = 0.5$.
 
-First, we simulated 500 data sets with sample size 500 in each simulation setting. After running the models, a set of \beta was extracted and used to calculate the mean bias, variance, and squared error. 
+First, we simulated 500 data sets with sample size 500 in each simulation setting. After running the models, a set of $\beta$ was extracted and used to calculate the mean bias, variance, and squared error. 
 
 Then, we evaluated the performances of models on varying sample size to evaluate the efficiency. Therefore, we simulated data of different sample sizes: 20, 40, 60, 80, 100, 200, 400. Similarly, bias, variance, MSE are calculated. 
 
@@ -42,7 +42,7 @@ Survival time: $T=\frac{1}{\alpha} \log \left(1-\frac{\alpha \log (u)}{\lambda e
 We simulated survival data by mixing the event time generated from the mixtures of three baseline distributions above. 
 
 Mixture of Exponential and Weibull distribution:
-$$T=p *(-\frac{\log (u)}{\lambda e^{x^{T} \beta}}) + (1-p)*(-\frac{\log (u)}{\lambda e^{x^{T} \beta}})$$
+$$T=p *(-\frac{\log (u)}{\lambda e^{x^{T} \beta}}) + (1-p)*(-\frac{\log (u)}{\lambda e^{x^{T} \beta}})^{1 / \gamma}$$ 
 We take values of p from (0, 0.2, 0.4, 0.6, 0.8, 1). When `p = 1`, event time is generated from exponential baseline; when `p = 0`, event time is generated from Weibull distribution. 
 
 Mixture of Exponential and Gompertz distribution:
