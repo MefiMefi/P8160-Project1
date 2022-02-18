@@ -173,35 +173,35 @@ pre code {
 
 <div id="selection-of-performance-measure" class="section level2">
 <h2>Selection of performance measure</h2>
-<p>We decided to use Average deviance, Variance and MSE to measure the performance of the 3 models we have got.</p>
-<p>Average deviance:<br />
-The average deviation is the average difference between the sign values and the arithmetic mean. The larger the average deviation, the greater the degree of difference between each sign value and the arithmetic mean, and the less representative the arithmetic mean is; the smaller the average deviation, the smaller the degree of difference between each sign value and the arithmetic mean, and the more representative the arithmetic mean is.<br />
+<p>We decided to use Average deviance, Variance and MSE to measure the performance of the 3 models we have got, which means whether the models can simulate the real hazard model most efficiently.</p>
+<p><strong>Average deviance:</strong><br />
+The average deviation is the average difference between the <span class="math inline">\(\beta\)</span> we got from the simulation and the real <span class="math inline">\(\beta\)</span>. The larger the average deviation, the greater the degree of difference between the <span class="math inline">\(\beta\)</span> we got from the simulation and the real <span class="math inline">\(\beta\)</span>, and the less accuracy the simulation is.<br />
 According to the definition, the model which have a smaller average deviance will have a better predicting accuracy.<br />
 In the data we generated, we assume <span class="math inline">\(\beta_{1}=0.5\)</span>. So when calculating the average deviation, we used the equation below to get the average deviation of each model.<br />
 </p>
-<p>Exponential: <span class="math inline">\(average deviation=\sum\frac{|fit.exp-\beta_{1}*1|}{n}=\sum\frac{|fit.exp-0.5|}{n}\)</span><br />
+<p><em>Exponential</em>: <span class="math inline">\(average deviation=\sum\frac{|\beta_{exp}-\beta_{1}|}{n}=\sum\frac{|\beta_{exp}-0.5|}{n}\)</span><br />
 </p>
-<p>Weibull: <span class="math inline">\(average deviation=\sum\frac{|fit.weibull-\beta_{1}*1|}{n}=\sum\frac{|fit.weibull-0.5|}{n}\)</span><br />
+<p><em>Weibull</em>: <span class="math inline">\(average deviation=\sum\frac{|\beta_{weibull}-\beta_{1}|}{n}=\sum\frac{|\beta_{weibull}-0.5|}{n}\)</span><br />
 </p>
-<p>Cox: <span class="math inline">\(average deviation=\sum\frac{|fit.cox-\beta_{1}*1|}{n}=\sum\frac{|fit.cox-0.5|}{n}\)</span></p>
-<p>Variance:<br />
-The variance is the average of the sum of the squares of the differences between the individual data and the mean. According to the definition, the model which have a smaller variance will have a better predicting performance. In the data we generated, we assume <span class="math inline">\(\beta_{1}=0.5\)</span>. So when calculating the variance, we used the equation below to get the variance of each model.<br />
+<p><em>Cox</em>: <span class="math inline">\(average deviation=\sum\frac{|\beta_{cox}-\beta_{1}|}{n}=\sum\frac{|\beta_{cox}-0.5|}{n}\)</span></p>
+<p><strong>Variance:</strong><br />
+The variance is the average of the sum of the squares of the differences between the <span class="math inline">\(\beta\)</span> we got from the simulation and the real <span class="math inline">\(\beta\)</span>. According to the definition, the model which have a smaller variance will have a better predicting efficiency. In the data we generated, we assume <span class="math inline">\(\beta_{1}=0.5\)</span>. So when calculating the variance, we used the equation below to get the variance of each model.<br />
 </p>
-<p>Exponential: <span class="math inline">\(variance= \sum\frac{(fit.exp-\beta_{1}*1)^2}{n-1}=\sum\frac{(fit.exp-0.5)^2}{n-1}\)</span><br />
+<p><em>Exponential</em>: <span class="math inline">\(variance= \sum\frac{(\beta_{exp}-\beta_{1})^2}{n-1}=\sum\frac{(\beta_{exp}-0.5)^2}{n-1}\)</span><br />
 </p>
-<p>Weibull: <span class="math inline">\(variance= \sum\frac{(fit.weibull-\beta_{1}*1)^2}{n-1}=\sum\frac{(fit.weibull-0.5)^2}{n-1}\)</span><br />
+<p><em>Weibull</em>: <span class="math inline">\(variance= \sum\frac{(\beta_{weibull}-\beta_{1})^2}{n-1}=\sum\frac{(\beta_{weibull}-0.5)^2}{n-1}\)</span><br />
 </p>
-<p>Cox: <span class="math inline">\(variance= \sum\frac{(fit.cox-\beta_{1}*1)^2}{n-1}=\sum\frac{(fit.cox-0.5)^2}{n-1}\)</span><br />
+<p><em>Cox</em>: <span class="math inline">\(variance= \sum\frac{(\beta_{cox}-\beta_{1})^2}{n-1}=\sum\frac{(\beta_{cox}-0.5)^2}{n-1}\)</span><br />
 </p>
-<p>MSE: The mean squared error (MSE) in parameter estimation is the expected value of the squared difference between the parameter estimate and the true value of the parameter. According to the definition, the model which have a smaller MSE will have a better predicting performance. In the data we generated, we assume <span class="math inline">\(\beta_{1}=0.5\)</span>. So when calculating the MSE, we used the equation below to get the MSE of each model.<br />
+<p><strong>MSE</strong>: The mean squared error (MSE) in parameter estimation is the expected value of the squared difference between the parameter estimate and the true value of the parameter. According to the definition, the model which have a smaller MSE will have a better predicting performance in both accuracy and efficiency. In the data we generated, we assume <span class="math inline">\(\beta_{1}=0.5\)</span>. So when calculating the MSE, we used the equation below to get the MSE of each model.<br />
 </p>
-<p>Exponential: <span class="math inline">\(MSE= \sum\frac{(fit.exp-\beta_{1}*1)^2}{n}=\sum\frac{(fit.exp-0.5)^2}{n}\)</span><br />
+<p><em>Exponential</em>: <span class="math inline">\(MSE= \sum\frac{(\beta_{exp}-\beta_{1})^2}{n}=\sum\frac{(\beta_{exp}-0.5)^2}{n}\)</span><br />
 </p>
-<p>Weibull: <span class="math inline">\(MSE= \sum\frac{(fit.weibull-\beta_{1}*1)^2}{n}=\sum\frac{(fit.weibull-0.5)^2}{n}\)</span><br />
+<p><em>Weibull</em>: <span class="math inline">\(MSE= \sum\frac{(\beta_{weibull}-\beta_{1})^2}{n}=\sum\frac{(\beta_{weibull}-0.5)^2}{n}\)</span><br />
 </p>
-<p>Cox: <span class="math inline">\(MSE= \sum\frac{(fit.cox-\beta_{1}*1)^2}{n}=\sum\frac{(fit.cox-0.5)^2}{n}\)</span></p>
+<p><em>Cox</em>: <span class="math inline">\(MSE= \sum\frac{(\beta_{cox}-\beta_{1})^2}{n}=\sum\frac{(\beta_{cox}-0.5)^2}{n}\)</span></p>
 <p>After getting the average deviance, variance and MSE of the 3 models when the size and the component of the data we generated is different, we made the spaghetti plot where the y value is average deviance, variance or MSE and the x value is the size of the data.<br />
-By observing the spaghetti plot, we can consider the model which have lower y value will have better performance.</p>
+Based on the plot, we can find out which model is the most suitable model easily by compare the value of average deviance, variance and MSE.</p>
 </div>
 
 
