@@ -204,9 +204,9 @@ sim_dat %>%
 bias = sim_dat %>% 
   select(-data, -rep) %>% 
   mutate(
-    b_exp = abs(b_exp - 0.5), 
-    b_weibull = abs(b_weibull - 0.5),
-    b_cox = abs(b_cox - 0.5)
+    b_exp = b_exp - 0.5, 
+    b_weibull = b_weibull - 0.5,
+    b_cox = b_cox - 0.5
   )%>% 
   group_by(n, p) %>% 
   summarize(
