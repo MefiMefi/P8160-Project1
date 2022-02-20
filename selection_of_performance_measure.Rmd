@@ -41,7 +41,7 @@ When the MBE is high and the variance is high, this is the last result we want t
 
 **MSE**:
 The mean squared error (MSE) in parameter estimation is the expected value of the squared difference between the parameter estimate and the true value of the parameter. It is defined as\
-$$MSE(\beta)=var(\beta)+bias(\beta)$$\
+$$MSE(\beta)=var(\beta)+bias^2(\beta)$$\
 According to the definition, the model which have a smaller MSE will have a better predicting performance in both accuracy and efficiency.
 In the data we generated, we assume $\beta_{1}=0.5$. So when calculating the MSE, we used the equation below to get the MSE of each model.\
 
