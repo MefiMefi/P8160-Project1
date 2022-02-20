@@ -1,0 +1,26 @@
+---
+title: "objectives"
+author: "Haolin Zhong"
+date: "2022/2/20"
+output: pdf_document
+---
+
+In survival analysis, which aims to investigate the efficacy of a treatment 
+$X$ on a survival time $T$, the three most important models are proportional hazards 
+model of Exponential, Weibull and Cox. 
+
+In proportional hazard models, the hazard ratio, which refers to the 
+instantaneous risk of failure at time $t$ giving that a patient has survived until 
+time $t$, is defined as:
+
+$$h_i(t) = h_0(t) \exp(x_i \theta)$$
+The formula suggests that the hazard ratio is dominated by the baseline hazard 
+function $h_0(t)$, a binary treatment indicator $x_i$ which coded 0 for control 
+and 1 for the treatment, and our parameter of interest, $\theta$, which is the 
+log hazard ratio for the treatment effect and measures the relative hazard 
+reduction due to treatment in comparison to the control.
+
+The three proportional hazard models have different assumptions on the baseline 
+hazard function, which makes them differ in flexibility and performance. To examine 
+their accuracy and efficiency in a series of scenarios and their robustness against
+misspecified distribution, we conducted this simulation study.
