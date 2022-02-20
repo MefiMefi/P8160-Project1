@@ -14,22 +14,22 @@ The Mean Bias Error (MBE) is the average difference between the $\beta$ we got f
 According to the definition, the model which have a smaller MBE might have a better predicting accuracy.\
 In the data we generated, we assume $\beta_{1}=0.5$. So when calculating the average bias, we used the equation below to get the average bias of each model.\
 
-*Exponential*: average bias=$\sum\frac{\beta_{exp}-\beta_{1}}{n}=\sum\frac{\beta_{exp}-0.5}{n}$\
+*Exponential*: $$MBE=\sum\frac{\beta_{exp}-\beta_{1}}{n}=\sum\frac{\beta_{exp}-0.5}{n}$$\
 
-*Weibull*: average bias=$\sum\frac{\beta_{weibull}-\beta_{1}}{n}=\sum\frac{\beta_{weibull}-0.5}{n}$\
+*Weibull*: $$MBE=\sum\frac{\beta_{weibull}-\beta_{1}}{n}=\sum\frac{\beta_{weibull}-0.5}{n}$$\
 
-*Cox*: average bias=$\sum\frac{\beta_{cox}-\beta_{1}}{n}=\sum\frac{\beta_{cox}-0.5}{n}$
+*Cox*: $$MBE=\sum\frac{\beta_{cox}-\beta_{1}}{n}=\sum\frac{\beta_{cox}-0.5}{n}$$\
 
 **Variance:**\
 The variance is the average of the sum of the squares of the differences between the $\beta$ we got from the simulation and the real $\beta$. Variance measures the change in learning performance due to a change in the same size training set, i.e., it portrays the impact of data perturbations. The variance indicates how much the prediction function constructed by all models differs from the true function.\
 According to the definition, the model which have a smaller variance will have a better predicting efficiency.
 In the data we generated, we assume $\beta_{1}=0.5$. So when calculating the variance, we used the equation below to get the variance of each model.\
 
-*Exponential*: variance= $\sum\frac{(\beta_{exp}-\beta_{1})^2}{n-1}=\sum\frac{(\beta_{exp}-0.5)^2}{n-1}$\
+*Exponential*: $$variance= \sum\frac{(\beta_{exp}-\beta_{1})^2}{n-1}=\sum\frac{(\beta_{exp}-0.5)^2}{n-1}$$\
 
-*Weibull*: variance= $\sum\frac{(\beta_{weibull}-\beta_{1})^2}{n-1}=\sum\frac{(\beta_{weibull}-0.5)^2}{n-1}$\
+*Weibull*: $$variance= \sum\frac{(\beta_{weibull}-\beta_{1})^2}{n-1}=\sum\frac{(\beta_{weibull}-0.5)^2}{n-1}$$\
 
-*Cox*: variance= $\sum\frac{(\beta_{cox}-\beta_{1})^2}{n-1}=\sum\frac{(\beta_{cox}-0.5)^2}{n-1}$\
+*Cox*: $$variance= \sum\frac{(\beta_{cox}-\beta_{1})^2}{n-1}=\sum\frac{(\beta_{cox}-0.5)^2}{n-1}$$\
 
 Low MBE with low variance is the effect we seek, when the predicted values are right on the bull's eye (closest to the true value) and are more concentrated (less variance).\
 
@@ -40,15 +40,16 @@ In the case of high MBE and low variance, the predicted values are far from the 
 When the MBE is high and the variance is high, this is the last result we want to see. The model is not only inaccurate, but also unstable, and the predicted values are very different every time.\
 
 **MSE**:
-The mean squared error (MSE) in parameter estimation is the expected value of the squared difference between the parameter estimate and the true value of the parameter.
+The mean squared error (MSE) in parameter estimation is the expected value of the squared difference between the parameter estimate and the true value of the parameter. It is defined as\
+$$MSE(\beta)=var(\beta)+bias(\beta)$$\
 According to the definition, the model which have a smaller MSE will have a better predicting performance in both accuracy and efficiency.
 In the data we generated, we assume $\beta_{1}=0.5$. So when calculating the MSE, we used the equation below to get the MSE of each model.\
 
-*Exponential*: MSE= $\sum\frac{(\beta_{exp}-\beta_{1})^2}{n}=\sum\frac{(\beta_{exp}-0.5)^2}{n}$\
+*Exponential*: $$MSE= \sum\frac{(\beta_{exp}-\beta_{1})^2}{n}=\sum\frac{(\beta_{exp}-0.5)^2}{n}$$\
 
-*Weibull*: MSE= $\sum\frac{(\beta_{weibull}-\beta_{1})^2}{n}=\sum\frac{(\beta_{weibull}-0.5)^2}{n}$\
+*Weibull*: $$MSE= \sum\frac{(\beta_{weibull}-\beta_{1})^2}{n}=\sum\frac{(\beta_{weibull}-0.5)^2}{n}$$\
 
-*Cox*: MSE= $\sum\frac{(\beta_{cox}-\beta_{1})^2}{n}=\sum\frac{(\beta_{cox}-0.5)^2}{n}$
+*Cox*: $$MSE= \sum\frac{(\beta_{cox}-\beta_{1})^2}{n}=\sum\frac{(\beta_{cox}-0.5)^2}{n}$$\
 
-After getting the average deviance, variance and MSE of the 3 models when the size and the component of the data we generated is different, we made the spaghetti plot where the y value is average deviance, variance or MSE and the x value is the size of the data.\
+After getting the MBE, variance and MSE of the 3 models when the size and the component of the data we generated is different, we made the spaghetti plot where the y value is average deviance, variance or MSE and the x value is the size of the data.\
 Based on the plot, we can find out which model is the most suitable model easily by compare the value of average deviance, variance and MSE.
