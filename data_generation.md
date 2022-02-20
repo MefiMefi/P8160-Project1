@@ -22,8 +22,6 @@ library(tidyverse)
 library(caret)
 ```
 
-    ## Warning: 程辑包'caret'是用R版本4.1.2 来建造的
-
     ## 载入需要的程辑包：lattice
 
     ## 
@@ -54,11 +52,23 @@ $$h(t) = \\frac{f(t)}{S(t)} = \\frac{F'(t)}{1 - F(t)}$$
 
 -   exponential proportional-hazards model:
 
-$$F(t) = 1 - \\text{exp}\\left\[- \\lambda t \\cdot \\exp(\\beta^T X) \\right\] \\quad \\implies \\quad F^{-1}(x) = - \\frac{\\ln(1 - x)}{\\lambda \\exp(\\beta^TX)}$$
+$$F(t) = 1 - \\text{exp}\\left\[- \\lambda t \\cdot \\exp(\\beta^T X) \\right\] \\quad \\implies \\quad F^{-1}(U) = - \\frac{\\ln(U)}{\\lambda \\exp(\\beta^TX)}$$
 
 -   Weibull proportional-hazards model:
 
-$$F(t) = 1 - \\text{exp}\\left\[- \\lambda t^{\\gamma} \\cdot \\exp(\\beta^T X) \\right\] \\quad \\implies \\quad F^{-1}(x) = \\left( - \\frac{\\ln(1 - x)}{\\lambda \\exp(\\beta^TX)}\\right) ^{\\frac 1 {\\gamma}}$$
+$$F(t) = 1 - \\text{exp}\\left\[- \\lambda t^{\\gamma} \\cdot \\exp(\\beta^T X) \\right\] \\quad \\implies \\quad F^{-1}(U) = \\left( - \\frac{\\ln(U)}{\\lambda \\exp(\\beta^TX)}\\right) ^{\\frac 1 {\\gamma}}$$
+
+-   Geompartz proportional-hazards model:
+
+$$
+F(t) = 1 - \\text{exp}\\left\[- \\lambda t^{\\gamma} \\cdot \\exp(\\beta^T X) \\right\] \\quad \\implies \\quad F^{-1}(U) = \\frac 1 {\\alpha} \\ln{\\left(1 - \\frac{\\alpha\\ln U}{\\lambda \\exp{\\beta^T X}}\\right)}
+$$
+
+``` r
+cox = function(u, x, lambda, alpha, beta){
+    time = (1/alpha) * log(1 - (alpha * log(u) / (lambda * exp(beta * x))))
+  }
+```
 
 ## Data Generation
 
@@ -106,14 +116,14 @@ simdat = function(n, p, lambda = 0.5, gamma = 1.5, eff = list()) {
 -   test:
 
 ``` r
-data = simdat(500, 1, eff = list(b1 = 0.5))
+data = simdat(500, 0, eff = list(b1 = 0.5))
 
 data %>% 
   ggplot() +
   geom_density(aes(x = time))
 ```
 
-![](data_generation_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](data_generation_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ## fit function
 
@@ -163,7 +173,7 @@ sim_dat %>%
         values =c('blue'='blue','darkred'='darkred', 'orange' = 'orange'), labels = c('cox','exp', 'weibull'))
 ```
 
-![](data_generation_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](data_generation_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 -   metrics:
 
@@ -193,7 +203,19 @@ mse = sim_dat %>%
 ggplot(mse, aes(x = n, y = mse, color = fit_method)) +
   geom_point() +
   geom_line() +
+  scale_y_log10() +
   facet_grid("p")
 ```
 
-![](data_generation_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](data_generation_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+sim_dat %>% 
+  select(-data, -rep) %>% 
+  pivot_longer("b_exp":"b_cox", names_to = "fit_method", values_to = "beta") %>% 
+  ggplot(aes(x = interaction(n), y = beta, color = fit_method)) +
+  geom_boxplot() +
+  facet_grid(fit_method~ p)
+```
+
+![](data_generation_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
