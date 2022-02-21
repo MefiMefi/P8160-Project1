@@ -10,7 +10,7 @@ output: pdf_document
 We decided to use Average deviance, Variance and MSE to measure the performance of the 3 models we have got, which means whether the models can simulate the real hazard model most efficiently.
 
 **Bias:**\
-The bias is the average difference between the $\beta$ we got from the simulation and the real $\beta$. The bias measure deviates the desired prediction of the learning algorithm from the true result, i.e., it portrays the fitting ability of the learning algorithm itself. The larger the bias, the greater the degree of difference between the $\beta$ we got from the simulation and the real $\beta$, and the less accuracy the simulation is.\
+The bias is the average difference between the $\beta$ we got from the simulation and the real $\beta$. The bias measure deviates the desired prediction of the learning algorithm from the true result, i.e., it portrays the fitting ability of the learning algorithm itself. The larger the bias, the greater the degree of difference between the estimated treatment effects $\beta$ and the real $\beta$, and the less accuracy the simulation is.\
 According to the definition, the model which have a smaller MBE might have a better predicting accuracy.\
 In the data we generated, we assume $\beta_{1}=0.5$. So when calculating the average bias, we used the equation below to get the average bias of each model.\
 
@@ -21,7 +21,7 @@ In the data we generated, we assume $\beta_{1}=0.5$. So when calculating the ave
 *Cox*: $$MBE=\sum\frac{\beta_{cox}-\beta_{1}}{n}=\sum\frac{\beta_{cox}-0.5}{n}$$\
 
 **Variance:**\
-The variance is the average of the sum of the squares of the differences between the $\beta$ we got from the simulation and the real $\beta$. Variance measures the change in learning performance due to a change in the same size training set, i.e., it portrays the impact of data perturbations. The variance indicates how much the prediction function constructed by all models differs from the true function.\
+The variance is the average of the sum of the squares of the differences between the estimated $\beta$ and the real $\beta$. Variance measures the change in learning performance due to a change in the same size training set, i.e., it portrays the impact of data perturbations. The variance indicates how much the prediction function constructed by all models differs from the true function.\
 Efficiency refers to two unbiased estimates of the same overall parameter where the estimate with smaller variance is more valid. According to the definition, the model which have a smaller variance will have a better predicting efficiency.
 In the data we generated, we assume $\beta_{1}=0.5$. So when calculating the variance, we used the equation below to get the variance of each model.\
 
