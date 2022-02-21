@@ -22,7 +22,7 @@ In the data we generated, we assume $\beta_{1}=0.5$. So when calculating the ave
 
 **Variance:**\
 The variance is the average of the sum of the squares of the differences between the $\beta$ we got from the simulation and the real $\beta$. Variance measures the change in learning performance due to a change in the same size training set, i.e., it portrays the impact of data perturbations. The variance indicates how much the prediction function constructed by all models differs from the true function.\
-According to the definition, the model which have a smaller variance will have a better predicting efficiency.
+Efficiency refers to two unbiased estimates of the same overall parameter where the estimate with smaller variance is more valid. According to the definition, the model which have a smaller variance will have a better predicting efficiency.
 In the data we generated, we assume $\beta_{1}=0.5$. So when calculating the variance, we used the equation below to get the variance of each model.\
 
 *Exponential*: $$variance= \sum\frac{(\beta_{exp}-\beta_{1})^2}{n-1}=\sum\frac{(\beta_{exp}-0.5)^2}{n-1}$$\
