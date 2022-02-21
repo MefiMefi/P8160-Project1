@@ -1,0 +1,445 @@
+---
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(caret)
+library(survival)
+library(fastmap)
+```
+
+```{r, echo=FALSE}
+simdat = function(n, p, lambda = 0.5, gamma = 1.5, eff = list()) {
+  x1 = rbinom(n, 1, 0.5)
+  u = runif(n)
+  useExp = runif(n) < p 
+  t =  useExp * (-log(u) / (lambda * exp(eff$b1 * x1))) + (1 - useExp) * (-log(u) / (lambda * exp(eff$b1 * x1)))^(1 / gamma)
+  t[t < 1/365] = 1/365
+  t[t == 1 / 365] = t[t == 1 / 365] + rnorm(length(t[t == 1 / 365]), 0, 1e-4)
+  t = abs(t)
+  e = as.numeric(t < 5)
+  t = pmin(t, 5)
+  name = paste("n =", n, ", p =", p, ", eff =", eff[[1]])
+  return(tibble(name = name, time = t, event = e, x1 = x1))
+}
+
+simdat0.5 = function(n, p, lambda = 0.5, gamma = 0.5, eff = list()) {
+  x1 = rbinom(n, 1, 0.5)
+  u = runif(n)
+  useExp = runif(n) < p 
+  t =  useExp * (-log(u) / (lambda * exp(eff$b1 * x1))) + (1 - useExp) * (-log(u) / (lambda * exp(eff$b1 * x1)))^(1 / gamma)
+  t[t < 1/365] = 1/365
+  t[t == 1 / 365] = t[t == 1 / 365] + rnorm(length(t[t == 1 / 365]), 0, 1e-4)
+  t = abs(t)
+  e = as.numeric(t < 5)
+  t = pmin(t, 5)
+  name = paste("n =", n, ", p =", p, ", eff =", eff[[1]])
+  return(tibble(name = name, time = t, event = e, x1 = x1))
+}
+
+simdat2 = function(n, p, lambda = 0.5, alpha = 0.5, eff = list()) {
+  x1 = rbinom(n, 1, 0.5)
+  u = runif(n)
+  useExp = runif(n) < p 
+  t =  useExp * (-log(u) / (lambda * exp(eff$b1 * x1))) + (1 - useExp) * (1/alpha) * log(1 - (alpha*log(u) / (lambda * exp(eff$b1 * x1))))
+  t[t < 1/365] = 1/365
+  t[t == 1 / 365] = t[t == 1 / 365] + rnorm(length(t[t == 1 / 365]), 0, 1e-4)
+  t = abs(t)
+  e = as.numeric(t < 5)
+  t = pmin(t, 5)
+  name = paste("n =", n, ", p =", p, ", eff =", eff[[1]])
+  return(tibble(name = name, time = t, event = e, x1 = x1))
+}
+```
+
+
+```{r, echo=FALSE}
+fit_exp = function(df) {
+  fit.exponential = survreg(Surv(time, event) ~ x1, dist = "exponential", data = df)
+  return(as.numeric(-fit.exponential$coefficients[-1]))
+}
+
+fit_weibull = function(df) {
+  fit.weibull <- survreg(Surv(time, event) ~ x1, dist = "weibull", data = df)
+  return(as.numeric(-fit.weibull$coefficients[-1] / fit.weibull$scale))
+}
+
+fit_cox = function(df) {
+  fit.cox <- coxph(Surv(time, event) ~ x1, data = df)
+  return(as.numeric(fit.cox$coefficients))
+}
+```
+
+## Results
+
+Figure 1 shows the results of the simulation from mixtures of exponential distribution and Weibull distribution with sample sizes from 20 to 400. The mixing parameter p = 0 represents a full Weibull distribution with $\lambda$ = 0.5, $\gamma$ = 1.5; p = 1 represents a full exponential with $\lambda$ = 0.5($\gamma$ = 1); and p = 0.5 represents a half and half mixture. The true $\beta$ = -0.5 is lined as reference. We can see obviously from the plot that when sample size is large enough and the true distribution is Weibull, the Cox model and Weibull model outperform the exponential model, which always tends to overestimate the true $\beta$. With p increasing, the gaps tend to diminish gradually and when the true distribution is exponential, three models have similar performances.
+
+```{r, echo=FALSE, warning=FALSE}
+param_grid = expand.grid(p = seq(0, 1, by = 0.5), n = c(20, 40, 60, 80, 100, 200, 400), rep = 1:500)
+
+set.seed(2022)
+sim_dat = param_grid %>% 
+  mutate(
+    data = map2(n, p, ~simdat(n = .x, p = .y, eff = list(b1 = -0.5)))
+  ) %>% 
+  mutate(
+    b_exp = map_dbl(data, fit_exp),
+    b_weibull = map_dbl(data, fit_weibull),
+    b_cox = map_dbl(data, fit_cox)
+  )
+
+p.labs = c("p: 0(weibull)", "p: 0.5", "p: 1(exponential)")
+names(p.labs) = c("0", "0.5", "1")
+
+sim_dat %>% 
+  ggplot() +
+  geom_density(aes(x = b_exp, color = "darkred"), alpha = 0.6, size = .3) +
+  geom_density(aes(x = b_weibull, color = "orange" ), size = .7) +
+  geom_density(aes(x = b_cox, color = "blue"), alpha = 0.3, size = .3) +
+  geom_vline(xintercept = -0.5) +
+  facet_grid(n~p, labeller = labeller(p = p.labs)) +
+  xlab(expression(paste("estimated ", beta))) +
+  scale_colour_manual(name = 'fit methods', 
+        values = c('blue' = 'blue','darkred' = 'darkred', 'orange' = 'orange'), labels = c('cox','exp', 'weibull')) +
+  scale_x_continuous(breaks = c(-1, -0.5, 0), limits = c(-1.5, 0.5)) +
+  labs(caption = "Figure 1") + 
+  theme(plot.caption = element_text(hjust = 0.5, size = rel(1.2)))
+```
+
+Figure 2-4 show the bias, variance and MSE of each underlying distributions. From the bias plot, we can see that the exponential model has the largest bias, and the only case it has the highest prediction accuracy is when the true distribution close to a purely exponential. The big difference in performances of exponential model in different distributions shows that it is the least robust againt a misspecified distribution. On the other hand, the variance plot shows that the exponential model constantly has the lowest versatility. When looking at MSE, exponential model performs the best when sample sizes are relatively small; but for large sample sizes, the Cox model and Weibull model perform better. 
+
+```{r, echo=FALSE, message=FALSE, fig.height=4, fig.width=6}
+bias = sim_dat %>% 
+  select(-data, -rep) %>% 
+  mutate(
+    b_exp = b_exp + 0.5, 
+    b_weibull = b_weibull + 0.5,
+    b_cox = b_cox + 0.5
+  ) %>% 
+  group_by(n, p) %>% 
+  summarize(
+    exp_bias = mean(b_exp),
+    weibull_bias = mean(b_weibull),
+    cox_bias = mean(b_cox)
+  ) %>% 
+  pivot_longer("exp_bias":"cox_bias", names_to = "fit_method", values_to = "bias") %>% 
+  mutate(fit_method = as.factor(fit_method))
+
+var = sim_dat %>% 
+  select(-data, -rep) %>% 
+  group_by(n, p) %>% 
+  summarize(
+    exp_var = var(b_exp),
+    weibull_var = var(b_weibull),
+    cox_var = var(b_cox)
+  ) %>% 
+  pivot_longer("exp_var":"cox_var", names_to = "fit_method", values_to = "variance") %>% 
+  mutate(fit_method = as.factor(fit_method))
+
+
+mse = sim_dat %>% 
+  select(-data, -rep) %>%
+  mutate(
+    b_exp = (b_exp + 0.5)^2,
+    b_weibull = (b_weibull + 0.5)^2,
+    b_cox = (b_cox + 0.5)^2
+  ) %>% 
+  group_by(n, p) %>% 
+  summarize(
+    exp_mse = mean(b_exp),
+    weibull_mse = mean(b_weibull),
+    cox_mse = mean(b_cox)
+  ) %>% 
+  pivot_longer("exp_mse":"cox_mse", names_to = "fit_method", values_to = "MSE") %>% 
+  mutate(fit_method = as.factor(fit_method)) 
+  
+
+ggplot(bias, aes(x = n, y = bias, color = fit_method)) +
+  geom_point(size = .3) +
+  geom_line(size = .3) +
+  #scale_y_log10() +
+  scale_x_log10() +
+  facet_grid("p", labeller = label_both) +
+  xlab("sample size") +
+  labs(caption = "Figure 2") + 
+  theme(plot.caption = element_text(hjust = 0.5, size = rel(1.2))) +
+  geom_hline(yintercept = 0)
+
+ggplot(var, aes(x = n, y = variance, color = fit_method)) +
+  geom_point(size = .3) +
+  geom_line(size = .3) +
+  scale_y_log10() +
+  scale_x_log10() +
+  facet_grid("p", labeller = label_both) +
+  xlab("sample size") +
+  labs(caption = "Figure 3") + 
+  theme(plot.caption = element_text(hjust = 0.5, size = rel(1.2)))
+
+ggplot(mse, aes(x = n, y = MSE, color = fit_method)) +
+  geom_point(size = .3) +
+  geom_line(size = .3) +
+  scale_y_log10() +
+  scale_x_log10() +
+  facet_grid("p", labeller = label_both) +
+  xlab("sample size") +
+  labs(caption = "Figure 4") + 
+  theme(plot.caption = element_text(hjust = 0.5, size = rel(1.2)))
+```
+
+Figure 5 shows the results of the simulation from mixtures of exponential and Weibull distribution with $\gamma$ = 0.5. It is the similar case as Figure 1, only this time the exponential model tends to underestimate the true $\beta$.
+
+```{r, echo=FALSE, warning=FALSE, fig.height=4.3}
+param_grid0.5 = expand.grid(p = seq(0, 1, by = 0.5), n = c(20, 40, 60, 80, 100, 200, 400), rep = 1:500)
+
+set.seed(2022)
+sim_dat0.5 = param_grid0.5 %>% 
+  mutate(
+    data = map2(n, p, ~simdat0.5(n = .x, p = .y, eff = list(b1 = -0.5)))
+  ) %>% 
+  mutate(
+    b_exp = map_dbl(data, fit_exp),
+    b_weibull = map_dbl(data, fit_weibull),
+    b_cox = map_dbl(data, fit_cox)
+  )
+
+sim_dat0.5 %>% 
+  ggplot() +
+  geom_density(aes(x = b_exp, color = "darkred"), alpha = 0.6, size = .3) +
+  geom_density(aes(x = b_weibull, color = "orange" ), size = .7) +
+  geom_density(aes(x = b_cox, color = "blue"), alpha = 0.3, size = .3) +
+  geom_vline(xintercept = -0.5) +
+  facet_grid(n~p, labeller = labeller(p = p.labs)) +
+  xlab(expression(paste("estimated ", beta))) +
+  scale_colour_manual(name = 'fit methods', 
+        values = c('blue' = 'blue','darkred' = 'darkred', 'orange' = 'orange'), labels = c('cox','exp', 'weibull')) +
+  scale_x_continuous(breaks = c(-1, -0.5, 0), limits = c(-1.5, 0.5)) +
+  labs(caption = "Figure 5") + 
+  theme(plot.caption = element_text(hjust = 0.5, size = rel(1.2)))
+```
+
+Figure 6-8 show some slightly different results from the previous simulation. In this case the exponential model has the poorest performance in both accuracy and efficiancy, regardless of sample size.
+
+```{r, echo=FALSE, message=FALSE, fig.height=3.6, fig.width=6}
+bias0.5 = sim_dat0.5 %>% 
+  select(-data, -rep) %>% 
+  mutate(
+    b_exp = b_exp + 0.5, 
+    b_weibull = b_weibull + 0.5,
+    b_cox = b_cox + 0.5
+  ) %>% 
+  group_by(n, p) %>% 
+  summarize(
+    exp_bias = mean(b_exp),
+    weibull_bias = mean(b_weibull),
+    cox_bias = mean(b_cox)
+  ) %>% 
+  pivot_longer("exp_bias":"cox_bias", names_to = "fit_method", values_to = "bias") %>% 
+  mutate(fit_method = as.factor(fit_method))
+
+var0.5 = sim_dat0.5 %>% 
+  select(-data, -rep) %>% 
+  group_by(n, p) %>% 
+  summarize(
+    exp_var = var(b_exp),
+    weibull_var = var(b_weibull),
+    cox_var = var(b_cox)
+  ) %>% 
+  pivot_longer("exp_var":"cox_var", names_to = "fit_method", values_to = "variance") %>% 
+  mutate(fit_method = as.factor(fit_method))
+
+
+mse0.5 = sim_dat0.5 %>% 
+  select(-data, -rep) %>%
+  mutate(
+    b_exp = (b_exp + 0.5)^2,
+    b_weibull = (b_weibull + 0.5)^2,
+    b_cox = (b_cox + 0.5)^2
+  ) %>% 
+  group_by(n, p) %>% 
+  summarize(
+    exp_mse = mean(b_exp),
+    weibull_mse = mean(b_weibull),
+    cox_mse = mean(b_cox)
+  ) %>% 
+  pivot_longer("exp_mse":"cox_mse", names_to = "fit_method", values_to = "MSE") %>% 
+  mutate(fit_method = as.factor(fit_method)) 
+  
+
+ggplot(bias0.5, aes(x = n, y = bias, color = fit_method)) +
+  geom_point(size = .3) +
+  geom_line(size = .3) +
+  #scale_y_log10() +
+  scale_x_log10() +
+  facet_grid("p", labeller = label_both) +
+  xlab("sample size") +
+  labs(caption = "Figure 6") + 
+  theme(plot.caption = element_text(hjust = 0.5, size = rel(1.2))) +
+  geom_hline(yintercept = 0)
+
+ggplot(var0.5, aes(x = n, y = variance, color = fit_method)) +
+  geom_point(size = .3) +
+  geom_line(size = .3) +
+  scale_y_log10() +
+  scale_x_log10() +
+  facet_grid("p", labeller = label_both) +
+  xlab("sample size") +
+  labs(caption = "Figure 7") + 
+  theme(plot.caption = element_text(hjust = 0.5, size = rel(1.2)))
+
+ggplot(mse0.5, aes(x = n, y = MSE, color = fit_method)) +
+  geom_point(size = .3) +
+  geom_line(size = .3) +
+  scale_y_log10() +
+  scale_x_log10() +
+  facet_grid("p", labeller = label_both) +
+  xlab("sample size") +
+  labs(caption = "Figure 8") + 
+  theme(plot.caption = element_text(hjust = 0.5, size = rel(1.2)))
+```
+
+Finally, Figure 9 shows the results of the simulation from a Gompertz distribution, with different proportions of data contaminated by an exponential distribution. At large sample sizes, the Cox model performs the best apparently, because the true distribution is neither exponential nor Weibull. This shows that the Cox model has the highest robustness against misspecified baseline hazard functions, than followed by Weibull, and the most strict exponential model performs poorest when the true distribution does not match.
+
+```{r, echo=FALSE, warning=FALSE, fig.height=4.2}
+param_grid2 = expand.grid(p = seq(0, 0.5, by = 0.25), n = c(20, 40, 60, 80, 100, 200, 400), rep = 1:500)
+
+set.seed(2022)
+sim_dat2 = param_grid2 %>% 
+  mutate(
+    data = map2(n, p, ~simdat2(n = .x, p = .y, eff = list(b1 = -0.5)))
+  ) %>% 
+  mutate(
+    b_exp = map_dbl(data, fit_exp),
+    b_weibull = map_dbl(data, fit_weibull),
+    b_cox = map_dbl(data, fit_cox)
+  )
+
+p.labs2 = c("p: 0(Gompertz)", "p: 0.25", "p: 0.5")
+names(p.labs2) = c("0", "0.25", "0.5")
+
+sim_dat2 %>% 
+  ggplot() +
+  geom_density(aes(x = b_exp, color = "darkred"), alpha = 0.6, size = .3) +
+  geom_density(aes(x = b_weibull, color = "orange" ), size = .5) +
+  geom_density(aes(x = b_cox, color = "blue"), alpha = 0.3, size = .3) +
+  geom_vline(xintercept = -0.5) +
+  facet_grid(n~p, labeller = labeller(p = p.labs2)) +
+  xlab(expression(paste("estimated ", beta))) +
+  scale_colour_manual(name = 'fit methods', 
+        values = c('blue' = 'blue','darkred' = 'darkred', 'orange' = 'orange'), labels = c('cox','exp', 'weibull')) +
+  scale_x_continuous(breaks = c(-1, -0.5, 0), limits = c(-1.5, 0.5)) +
+  labs(caption = "Figure 9") + 
+  theme(plot.caption = element_text(hjust = 0.5, size = rel(1.2)))
+```
+
+Figure 10-12 show that the exponential is still the most biased one among the three models, and it keeps the highest efficiency with the smallest variance, followed by the Weibull model-but when the true distribution becomes more mixed up, the Cox model tends to outperform the Weibull model. The MSE plot shows that with small sample sizes, the exponential model has good prediction performance; while with large sample sizes, the Cox model has better prediction performance. 
+
+```{r, echo=FALSE, message=FALSE, fig.height=3.6, fig.width=6}
+bias2 = sim_dat2 %>% 
+  select(-data, -rep) %>% 
+  mutate(
+    b_exp = b_exp + 0.5, 
+    b_weibull = b_weibull + 0.5,
+    b_cox = b_cox + 0.5
+  ) %>% 
+  group_by(n, p) %>% 
+  summarize(
+    exp_bias = mean(b_exp),
+    weibull_bias = mean(b_weibull),
+    cox_bias = mean(b_cox)
+  ) %>% 
+  pivot_longer("exp_bias":"cox_bias", names_to = "fit_method", values_to = "bias") %>% 
+  mutate(fit_method = as.factor(fit_method))
+
+var2 = sim_dat2 %>% 
+  select(-data, -rep) %>% 
+  group_by(n, p) %>% 
+  summarize(
+    exp_var = var(b_exp),
+    weibull_var = var(b_weibull),
+    cox_var = var(b_cox)
+  ) %>% 
+  pivot_longer("exp_var":"cox_var", names_to = "fit_method", values_to = "variance") %>% 
+  mutate(fit_method = as.factor(fit_method))
+
+
+mse2 = sim_dat2 %>% 
+  select(-data, -rep) %>%
+  mutate(
+    b_exp = (b_exp + 0.5)^2,
+    b_weibull = (b_weibull + 0.5)^2,
+    b_cox = (b_cox + 0.5)^2
+  ) %>% 
+  group_by(n, p) %>% 
+  summarize(
+    exp_mse = mean(b_exp),
+    weibull_mse = mean(b_weibull),
+    cox_mse = mean(b_cox)
+  ) %>% 
+  pivot_longer("exp_mse":"cox_mse", names_to = "fit_method", values_to = "MSE") %>% 
+  mutate(fit_method = as.factor(fit_method)) 
+  
+
+ggplot(bias2, aes(x = n, y = bias, color = fit_method)) +
+  geom_point(size = .3) +
+  geom_line(size = .3) +
+  #scale_y_log10() +
+  scale_x_log10() +
+  facet_grid("p", labeller = label_both) +
+  xlab("sample size") +
+  labs(caption = "Figure 10") + 
+  theme(plot.caption = element_text(hjust = 0.5, size = rel(1.2))) +
+  geom_hline(yintercept = 0)
+
+ggplot(var2, aes(x = n, y = variance, color = fit_method)) +
+  geom_point(size = .3) +
+  geom_line(size = .3) +
+  scale_y_log10() +
+  scale_x_log10() +
+  facet_grid("p", labeller = label_both) +
+  xlab("sample size") +
+  labs(caption = "Figure 11") + 
+  theme(plot.caption = element_text(hjust = 0.5, size = rel(1.2)))
+
+ggplot(mse2, aes(x = n, y = MSE, color = fit_method)) +
+  geom_point(size = .3) +
+  geom_line(size = .3) +
+  scale_y_log10() +
+  scale_x_log10() +
+  facet_grid("p", labeller = label_both) +
+  xlab("sample size") +
+  labs(caption = "Figure 12") + 
+  theme(plot.caption = element_text(hjust = 0.5, size = rel(1.2)))
+```
+
+## Conclusions and discussion
+
+In conclusion, the exponential model is the most restrictive one, with only one parameter $\lambda$, while the Weibull has an additional $\gamma$ and the Cox does not specify a certain baseline hazard function, being the most flexible and general model. Thus it is natural that the exponential model tends to have higher bias and lower variance, or we can say, lower prediction accuracy and higher efficiency compared to the other two models. Also because of the lack of freedom, the robustness against misspecified baseline hazard functions of exponential models is the weakest. On the contrary, the Cox model are the most robust, and can fit to any kinds of underlying distribution smoothly, especially when sample size is large.
+
+In reality, it is hard to figure out the true distribution of data. For general users, we recommend to choose a model base on the sample size. When the sample size is relatively small, an exponential model will perform the best because it is the stablest and least likely to get wild - even if you do not have enough observations, it has the largest probability to give you a quite reliable and meaningful estimate. On the other hand, if fortunately you have a large sample size, the Cox model will potentially give the best performances.
+
+Interestingly, we find that in the simulation where $\gamma$ = 0.5 in Weibull distribution, the variance of exponential model is also the highest. We know that for $\gamma$ > 1, the hazard function increases monotonously and for $\gamma$ < 1, the hazard function decreases monotonously. Figure 13-14 show the different Weibull curves for $\gamma$ = 1.5 and $\gamma$  = 0.5 respectively. We can see that when $\gamma$ < 1, the curve is totally different from the exponential curve in direction. This fact further shows that the exponential model acts poorly when the true distribution is far from exponential, thus having weak robustness against misspecified hazard functions.
+
+```{r, echo=FALSE, fig.height=3.6, fig.width=4.5}
+exp_haz <- function(t, lambda = 0.5) lambda * 1 * t^0
+weibull_haz <- function(t, lambda = 0.5, gamma = 1.5) lambda * gamma * t^(gamma - 1)
+gompertz_haz <- function(t, alpha = 0.5, lambda = 0.1) lambda * exp(alpha* t)
+curve(exp_haz, from = 0, to = 5, lty = 1, ylim = c(0, 2), ylab = expression(h[0](t)), xlab = "Follow-up time t")
+curve(weibull_haz, from = 0, to = 5, lty = 2, add = TRUE)
+curve(gompertz_haz, from = 0, to = 5, lty = 3, add = TRUE )
+legend(x = "topleft", lty = 1:3, legend = c("Exponential baseline hazard", "Weibull baseline hazard","Gompertz baseline harzard"), bty = "n")
+title(sub = "Figure 13")
+```
+
+``` {r, echo=FALSE, fig.height=3.6, fig.width=4.5}
+exp_haz <- function(t, lambda = 0.5) lambda * 1 * t^0
+weibull_haz <- function(t, lambda = 0.5, gamma = 0.5) lambda * gamma * t^(gamma - 1)
+gompertz_haz <- function(t, alpha = 0.5, lambda = 0.1) lambda * exp(alpha* t)
+curve(exp_haz, from = 0, to = 5, lty = 1, ylim = c(0, 2), ylab = expression(h[0](t)), xlab = "Follow-up time t")
+curve(weibull_haz, from = 0, to = 5, lty = 2, add = TRUE)
+curve(gompertz_haz, from = 0, to = 5, lty = 3, add = TRUE )
+legend(x = "topleft", lty = 1:3, legend = c("Exponential baseline hazard", "Weibull baseline hazard","Gompertz baseline harzard"), bty = "n")
+title(sub = "Figure 14")
+```
+
+This simulation study has some limitations. We only test some certain values of our parameters so the generalizability of our conclusion is still questioned. For further simulation, we could try more combinations of $\beta$, $\lambda$, $\gamma$, $\alpha$, and p. In addition, we could take into consideration even more types of other possible baseline hazard functions, like log-logistic distribution, gamma distribution, log-normal distribution etc. and the mixtures of them. We could test for different time censoring as well. 
