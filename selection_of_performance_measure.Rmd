@@ -2,53 +2,54 @@
 title: "Selection of performance measure"
 author: "Yijing Tao"
 date: "2/17/2022"
-output: html_document
+output: pdf_document
 ---
 
 ## Selection of performance measure
 
 We decided to use Average deviance, Variance and MSE to measure the performance of the 3 models we have got, which means whether the models can simulate the real hazard model most efficiently.
 
-**Average deviance:**\
-The average deviation is the average difference between the $\beta$ we got from the simulation and the real $\beta$. The average deviation measure deviates the desired prediction of the learning algorithm from the true result, i.e., it portrays the fitting ability of the learning algorithm itself. The larger the average deviation, the greater the degree of difference between the $\beta$ we got from the simulation and the real $\beta$, and the less accuracy the simulation is.\
-According to the definition, the model which have a smaller average deviance will have a better predicting accuracy.\
+**Bias:**\
+The bias is the average difference between the estimated treatment effects $\beta$ and the real $\beta$. The bias measure deviates the desired prediction of the learning algorithm from the true result, i.e., it portrays the fitting ability of the learning algorithm itself. The larger the bias, the greater the degree of difference between the estimated $\beta$ and the real $\beta$, and the less accuracy the simulation is.\
+According to the definition, the model which have a smaller MBE might have a better predicting accuracy.\
 In the data we generated, we assume $\beta_{1}=0.5$. So when calculating the average bias, we used the equation below to get the average bias of each model.\
 
-*Exponential*: average bias=$\sum\frac{|\beta_{exp}-\beta_{1}|}{n}=\sum\frac{|\beta_{exp}-0.5|}{n}$\
+*Exponential*: $$MBE=\sum\frac{\beta_{exp}-\beta_{1}}{n}=\sum\frac{\beta_{exp}-0.5}{n}$$\
 
-*Weibull*: average bias=$\sum\frac{|\beta_{weibull}-\beta_{1}|}{n}=\sum\frac{|\beta_{weibull}-0.5|}{n}$\
+*Weibull*: $$MBE=\sum\frac{\beta_{weibull}-\beta_{1}}{n}=\sum\frac{\beta_{weibull}-0.5}{n}$$\
 
-*Cox*: average bias=$\sum\frac{|\beta_{cox}-\beta_{1}|}{n}=\sum\frac{|\beta_{cox}-0.5|}{n}$
+*Cox*: $$MBE=\sum\frac{\beta_{cox}-\beta_{1}}{n}=\sum\frac{\beta_{cox}-0.5}{n}$$\
 
 **Variance:**\
-The variance is the average of the sum of the squares of the differences between the $\beta$ we got from the simulation and the real $\beta$. Variance measures the change in learning performance due to a change in the same size training set, i.e., it portrays the impact of data perturbations. The variance indicates how much the prediction function constructed by all models differs from the true function.\
-According to the definition, the model which have a smaller variance will have a better predicting efficiency.
+The variance is the average of the sum of the squares of the differences between the estimated $\beta$ and the real $\beta$. Variance measures the change in learning performance due to a change in the same size training set, i.e., it portrays the impact of data perturbations. The variance indicates how much the prediction function constructed by all models differs from the true function.\
+Efficiency refers to two unbiased estimates of the same overall parameter where the estimate with smaller variance is more valid. According to the definition, the model which have a smaller variance will have a better predicting efficiency.
 In the data we generated, we assume $\beta_{1}=0.5$. So when calculating the variance, we used the equation below to get the variance of each model.\
 
-*Exponential*: variance= $\sum\frac{(\beta_{exp}-\beta_{1})^2}{n-1}=\sum\frac{(\beta_{exp}-0.5)^2}{n-1}$\
+*Exponential*: $$variance= \sum\frac{(\beta_{exp}-\beta_{1})^2}{n-1}=\sum\frac{(\beta_{exp}-0.5)^2}{n-1}$$\
 
-*Weibull*: variance= $\sum\frac{(\beta_{weibull}-\beta_{1})^2}{n-1}=\sum\frac{(\beta_{weibull}-0.5)^2}{n-1}$\
+*Weibull*: $$variance= \sum\frac{(\beta_{weibull}-\beta_{1})^2}{n-1}=\sum\frac{(\beta_{weibull}-0.5)^2}{n-1}$$\
 
-*Cox*: variance= $\sum\frac{(\beta_{cox}-\beta_{1})^2}{n-1}=\sum\frac{(\beta_{cox}-0.5)^2}{n-1}$\
+*Cox*: $$variance= \sum\frac{(\beta_{cox}-\beta_{1})^2}{n-1}=\sum\frac{(\beta_{cox}-0.5)^2}{n-1}$$\
 
-Low deviation with low variance is the effect we seek, when the predicted values are right on the bull's eye (closest to the true value) and are more concentrated (less variance).\
+Low bias with low variance is the effect we seek, when the predicted values are right on the bull's eye (closest to the true value) and are more concentrated (less variance).\
 
-In the case of low deviation and high variance, the predicted value basically falls around the true value, but it is very scattered, and the variance is larger, which means the stability of the model is not good enough.\
+In the case of low bias and high variance, the predicted value basically falls around the true value, but it is very scattered, and the variance is larger, which means the stability of the model is not good enough.\
 
-In the case of high deviation and low variance, the predicted values are far from the true values, but the values are concentrated and the variance is small; the stability of the model is good, but the prediction accuracy is not high, and it is in the state of "inaccurate prediction as usual".\
+In the case of high bias and low variance, the predicted values are far from the true values, but the values are concentrated and the variance is small; the stability of the model is good, but the prediction accuracy is not high, and it is in the state of "inaccurate prediction as usual".\
 
-When the deviation is high and the variance is high, this is the last result we want to see. The model is not only inaccurate, but also unstable, and the predicted values are very different every time.\
+When the bias is high and the variance is high, this is the last result we want to see. The model is not only inaccurate, but also unstable, and the predicted values are very different every time.\
 
 **MSE**:
-The mean squared error (MSE) in parameter estimation is the expected value of the squared difference between the parameter estimate and the true value of the parameter.
+The mean squared error (MSE) in parameter estimation is the expected value of the squared difference between the estimated $\beta$ and the true $\beta$. It is defined as\
+$$MSE(\beta)=var(\beta)+bias^2(\beta)$$\
 According to the definition, the model which have a smaller MSE will have a better predicting performance in both accuracy and efficiency.
 In the data we generated, we assume $\beta_{1}=0.5$. So when calculating the MSE, we used the equation below to get the MSE of each model.\
 
-*Exponential*: MSE= $\sum\frac{(\beta_{exp}-\beta_{1})^2}{n}=\sum\frac{(\beta_{exp}-0.5)^2}{n}$\
+*Exponential*: $$MSE= \sum\frac{(\beta_{exp}-\beta_{1})^2}{n}=\sum\frac{(\beta_{exp}-0.5)^2}{n}$$\
 
-*Weibull*: MSE= $\sum\frac{(\beta_{weibull}-\beta_{1})^2}{n}=\sum\frac{(\beta_{weibull}-0.5)^2}{n}$\
+*Weibull*: $$MSE= \sum\frac{(\beta_{weibull}-\beta_{1})^2}{n}=\sum\frac{(\beta_{weibull}-0.5)^2}{n}$$\
 
-*Cox*: MSE= $\sum\frac{(\beta_{cox}-\beta_{1})^2}{n}=\sum\frac{(\beta_{cox}-0.5)^2}{n}$
+*Cox*: $$MSE= \sum\frac{(\beta_{cox}-\beta_{1})^2}{n}=\sum\frac{(\beta_{cox}-0.5)^2}{n}$$\
 
-After getting the average deviance, variance and MSE of the 3 models when the size and the component of the data we generated is different, we made the spaghetti plot where the y value is average deviance, variance or MSE and the x value is the size of the data.\
-Based on the plot, we can find out which model is the most suitable model easily by compare the value of average deviance, variance and MSE.
+After getting the bias, variance and MSE of the 3 models when the size and the component of the data we generated is different, we made the spaghetti plot where the y value is the value of bias, variance or MSE and the x value is the size of the data.\
+Based on the plot, we can find out which model is the most suitable model easily by compare the value of bias, variance and MSE.
