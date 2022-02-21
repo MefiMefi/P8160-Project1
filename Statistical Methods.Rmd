@@ -12,7 +12,7 @@ header-includes:
 
 ### Structure of Simulated Survival Data 
 
-In this study, we simulate right censored survival data with on binary treatment indicator $x$. Our response variable is a dichotomous variable, coded as $1$ when event occurred or $0$ when event did not occur during the 5-year observation period. 
+In this study, we simulate right censored survival data with one binary treatment indicator $x$. Our response variable is a dichotomous variable, coded as $1$ when event occurred or $0$ when event did not occur during the 5-year observation period. 
 
 Follow up time is measured from time zero until the event occurs, the study ends or the participant is lost, whichever comes first.
 
