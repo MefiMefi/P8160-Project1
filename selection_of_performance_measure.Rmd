@@ -10,7 +10,7 @@ output: pdf_document
 We decided to use Average deviance, Variance and MSE to measure the performance of the 3 models we have got, which means whether the models can simulate the real hazard model most efficiently.
 
 **Bias:**\
-The bias is the average difference between the $\beta$ we got from the simulation and the real $\beta$. The bias measure deviates the desired prediction of the learning algorithm from the true result, i.e., it portrays the fitting ability of the learning algorithm itself. The larger the bias, the greater the degree of difference between the estimated treatment effects $\beta$ and the real $\beta$, and the less accuracy the simulation is.\
+The bias is the average difference between the estimated treatment effects $\beta$ and the real $\beta$. The bias measure deviates the desired prediction of the learning algorithm from the true result, i.e., it portrays the fitting ability of the learning algorithm itself. The larger the bias, the greater the degree of difference between the estimated $\beta$ and the real $\beta$, and the less accuracy the simulation is.\
 According to the definition, the model which have a smaller MBE might have a better predicting accuracy.\
 In the data we generated, we assume $\beta_{1}=0.5$. So when calculating the average bias, we used the equation below to get the average bias of each model.\
 
