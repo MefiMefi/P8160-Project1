@@ -192,11 +192,12 @@ In the data we generated, we assume $\beta_{1}=0.5$. So when calculating the MSE
 After getting the bias, variance and MSE of the 3 models when the size and the component of the data we generated is different, we made the spaghetti plot where the y value is the value of bias, variance or MSE and the x value is the size of the data.\
 Based on the plot, we can find out which model is the most suitable model easily by compare the value of bias, variance and MSE.
 
+\bigskip
 ## Results
 
 Figure 1 shows the results of the simulation from mixtures of exponential distribution and Weibull distribution with sample sizes from 20 to 400. The mixing parameter p = 0 represents a full Weibull distribution with $\lambda$ = 0.5, $\gamma$ = 1.5; p = 1 represents a full exponential with $\lambda$ = 0.5($\gamma$ = 1); and p = 0.5 represents a half and half mixture. The true $\beta$ = -0.5 is lined as reference. We can see obviously from the plot that when sample size is large enough and the true distribution is Weibull, the Cox model and Weibull model outperform the exponential model, which always tends to overestimate the true $\beta$. With p increasing, the gaps tend to diminish gradually and when the true distribution is exponential, three models have similar performances.
 
-```{r, echo=FALSE, warning=FALSE}
+```{r, echo=FALSE, warning=FALSE, fig.height=5}
 param_grid = expand.grid(p = seq(0, 1, by = 0.5), n = c(20, 40, 60, 80, 100, 200, 400), rep = 1:500)
 
 set.seed(2022)
@@ -228,6 +229,7 @@ sim_dat %>%
   theme(plot.caption = element_text(hjust = 0.5, size = rel(1.2)))
 ```
 
+\bigskip
 Figure 2-4 show the bias, variance and MSE of each underlying distributions. From the bias plot, we can see that the exponential model has the largest bias, and the only case it has the highest prediction accuracy is when the true distribution close to a purely exponential. The big difference in performances of exponential model in different distributions shows that it is the least robust againt a misspecified distribution. On the other hand, the variance plot shows that the exponential model constantly has the lowest versatility. When looking at MSE, exponential model performs the best when sample sizes are relatively small; but for large sample sizes, the Cox model and Weibull model perform better. 
 
 ```{r, echo=FALSE, message=FALSE, fig.height=4, fig.width=6}
@@ -564,3 +566,11 @@ title(sub = "Figure 14")
 ```
 
 This simulation study has some limitations. We only test some certain values of our parameters so the generalizability of our conclusion is still questioned. For further simulation, we could try more combinations of $\beta$, $\lambda$, $\gamma$, $\alpha$, and p. In addition, we could take into consideration even more types of other possible baseline hazard functions, like log-logistic distribution, gamma distribution, log-normal distribution etc. and the mixtures of them. We could test for different time censoring as well. 
+
+## Reference
+
+Austin PC. Generating survival times to simulate Cox proportional hazards models with time-varying covariates [published correction appears in Stat Med. 2013 Mar 15;32(6):1078]. Stat Med. 2012;31(29):3946-3958. doi:10.1002/sim.5452
+
+Bender, R., Augustin, T., & Blettner, M. (2005). Generating survival times to simulate Cox proportional hazards models. Statistics in medicine, 24(11), 1713–1723. https://doi.org/10.1002/sim.2059
+
+Moore, D. F. (2016). Applied survival analysis using R (p. 234). New York, NY: Springer.
