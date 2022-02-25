@@ -605,6 +605,10 @@ title(sub = "Figure 14")
 
 This simulation study has some limitations. We only test some certain values of our parameters so the generalizability of our conclusion is still questioned. For further simulation, we could try more combinations of $\beta$, $\lambda$, $\gamma$, $\alpha$, and p. In addition, we could take into consideration even more types of other possible baseline hazard functions, like log-logistic distribution, gamma distribution, log-normal distribution etc. and the mixtures of them. We could test for different time censoring as well. 
 
+## Acknowledgement
+
+All members contributed equally to the project. 
+
 ## Reference
 
 Austin PC. Generating survival times to simulate Cox proportional hazards models with time-varying covariates [published correction appears in Stat Med. 2013 Mar 15;32(6):1078]. Stat Med. 2012;31(29):3946-3958. doi:10.1002/sim.5452
