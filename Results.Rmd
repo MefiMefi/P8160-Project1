@@ -607,7 +607,14 @@ This simulation study has some limitations. We only test some certain values of 
 
 ## Acknowledgement
 
-All members contributed equally to the project. 
+All members contributed equally to the project.
+Haolin Zhong contributed to the most part of the code of simulations and the Objective part of the report.
+Renjie Wei contributed to the Statistical Methods part of the reports and the codes corresponding to this part.
+Anyu Zhu contributed to the Methods for Generating Data part of the reports and the codes corresponding to this part.
+Yijing Tao contributed to Selection of Performance Measure part and the codes corresponding to this part.
+Jibei Zheng contributed to Result and Conclusion part and the codes corresponding to this part.
+
+
 
 ## Reference
 
