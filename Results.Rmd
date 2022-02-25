@@ -1,12 +1,24 @@
 ---
 title: "A simulation study of comparing three survival models"
 author: "Yijing Tao; Renjie Wei; Jibei Zheng; Haolin Zhong; Anyu Zhu"
-output: pdf_document
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 2
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_depth: '2'
 header-includes:
+- \usepackage{fancyhdr}
+- \usepackage{lipsum}
+- \pagestyle{fancy}
+- \fancyhead[R]{\thepage}
+- \fancypagestyle{plain}{\pagestyle{fancy}}
 - \usepackage{placeins}
 - \usepackage{caption}
 ---
-
+\newpage
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(caret)
